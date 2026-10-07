@@ -1016,8 +1016,34 @@
       let database = null;
       let sharedEvaluations = [];
       let evaluationCompleted = false;
+      
+      // Initialize Firebase for loading shared evaluations on home page
+      function initializeFirebaseForReading() {
+        try {
+          if (typeof firebase === 'undefined') {
+            console.warn('Firebase library not loaded');
+            return;
+          }
+          if (firebase.apps && firebase.apps.length === 0) {
+            console.log('Initializing Firebase for reading shared evaluations...');
+            firebase.initializeApp(FIREBASE_CONFIG);
+            database = firebase.database();
+            firebaseInitialized = true;
+            console.log('Firebase initialized for reading');
+            loadSharedEvaluations();
+          } else if (firebase.apps && firebase.apps.length > 0) {
+            database = firebase.database();
+            firebaseInitialized = true;
+            console.log('Firebase already initialized');
+            loadSharedEvaluations();
+          }
+        } catch (error) {
+          console.error('Firebase initialization error:', error.message, error);
+          firebaseInitialized = false;
+        }
+      }
 
-      // Initialize Firebase
+      // Initialize Firebase for writing when share button is clicked
       function initializeFirebase() {
         try {
           if (typeof firebase === 'undefined') {
@@ -1025,11 +1051,11 @@
             return;
           }
           if (firebase.apps && firebase.apps.length === 0) {
-            console.log('Initializing Firebase with config:', FIREBASE_CONFIG);
+            console.log('Initializing Firebase for writing shared evaluations...');
             firebase.initializeApp(FIREBASE_CONFIG);
             database = firebase.database();
             firebaseInitialized = true;
-            console.log('Firebase initialized successfully');
+            console.log('Firebase initialized for writing');
             
             // Test connection
             database.ref('.info/connected').on('value', (snapshot) => {
@@ -1039,13 +1065,10 @@
                 console.warn('Firebase: Disconnected from database');
               }
             });
-            
-            loadSharedEvaluations();
           } else if (firebase.apps && firebase.apps.length > 0) {
             database = firebase.database();
             firebaseInitialized = true;
             console.log('Firebase already initialized');
-            loadSharedEvaluations();
           }
         } catch (error) {
           console.error('Firebase initialization error:', error.message, error);
@@ -1265,6 +1288,12 @@
           return;
         }
         
+        // Initialize Firebase only when sharing
+        if (!firebaseInitialized) {
+          console.log('Initializing Firebase for cloud sharing...');
+          initializeFirebase();
+        }
+        
         console.log('Share button clicked. Firebase initialized:', firebaseInitialized, 'Database:', !!database);
         
         if (!firebaseInitialized) {
@@ -1280,17 +1309,21 @@
         }
 
         const evaluationId = `${encodeURIComponent(currentAppName)}_${Date.now()}`;
+        const rawScore = calculateWeightedScore(); // Score on 0-10 scale
+        const scoreOut100 = Math.round(rawScore * 10); // Convert to 0-100 scale
+        
         const evaluationData = {
           appName: currentAppName,
           userName: currentUserName,
           featureScores: featureScores,
           featureApplicability: featureApplicability,
-          weightedScore: calculateWeightedScore(),
+          weightedScore: scoreOut100,
           timestamp: Date.now()
         };
 
         console.log('Attempting to save evaluation:', evaluationId);
         console.log('Database ref path:', `evaluations/${evaluationId}`);
+        console.log('Raw score (0-10):', rawScore, 'Score out of 100:', scoreOut100);
         console.log('Data being saved:', evaluationData);
         
         // Create a timeout promise that rejects after 10 seconds
@@ -3237,28 +3270,6 @@
         updateUI();
       }
 
-      function saveEvaluationToCloud(appName, userName, data) {
-        // Silently handle Firebase unavailability
-        if (typeof firebase === 'undefined' || !firebase.database) {
-          return Promise.resolve();
-        }
-        try {
-          const evaluationId = encodeURIComponent(appName) + '_' + encodeURIComponent(userName) + '_' + Date.now();
-          const evaluationData = {
-            appName: appName,
-            userName: userName,
-            featureScores: data.featureScores,
-            featureApplicability: data.featureApplicability,
-            weightedScore: data.score,
-            timestamp: Date.now()
-          };
-          return firebase.database().ref('evaluations/' + evaluationId).set(evaluationData);
-        } catch (error) {
-          console.warn('Firebase save failed:', error);
-          return Promise.resolve();
-        }
-      }
-
       function persistCurrentApp() {
         if (!currentAppName) return;
 
@@ -3282,13 +3293,6 @@
         );
         history.unshift({ appName: currentAppName, userName: currentUserName, score, updatedAt: payload.updatedAt });
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 30)));
-        
-        // Also save to Firebase if available
-        saveEvaluationToCloud(currentAppName, currentUserName, {
-          featureScores,
-          featureApplicability,
-          score
-        }).catch(error => console.warn('Firebase save failed:', error));
         
         updateHistoryList();
       }
@@ -3664,16 +3668,11 @@
 
       updateHistoryList();
       
-      // Initialize Firebase with a small delay to ensure DOM is ready
+      // Initialize Firebase on home page to load shared evaluations
       setTimeout(() => {
-        console.log('Initializing Firebase...');
-        initializeFirebase();
+        console.log('Initializing Firebase for loading shared evaluations...');
+        initializeFirebaseForReading();
       }, 100);
-      
-      // Log Firebase availability
-      setTimeout(() => {
-        console.log('Firebase status check - Initialized:', firebaseInitialized, 'Database:', !!database);
-      }, 500);
     </script>
   </body>
 </html>
