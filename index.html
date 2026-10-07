@@ -1053,12 +1053,20 @@
 
       // Load evaluations shared by others
       function loadSharedEvaluations() {
-        if (!firebaseInitialized || !database) return;
+        console.log('loadSharedEvaluations called. Firebase initialized:', firebaseInitialized, 'Database:', !!database);
+        if (!firebaseInitialized || !database) {
+          console.warn('Cannot load shared evaluations - Firebase not ready');
+          return;
+        }
         
         const evaluationsRef = database.ref('evaluations');
+        console.log('Setting up listener on evaluations ref');
+        
         evaluationsRef.on('value', (snapshot) => {
           const data = snapshot.val();
+          console.log('Received data from Firebase:', data);
           sharedEvaluations = data ? Object.values(data) : [];
+          console.log('Processed shared evaluations:', sharedEvaluations.length, 'items');
           renderSharedEvaluations();
         }, (error) => {
           console.error('Firebase read error:', error.code, error.message);
@@ -1069,10 +1077,12 @@
       // Render shared evaluations in the list
       function renderSharedEvaluations() {
         const container = document.getElementById('sharedEvaluationsList');
+        console.log('renderSharedEvaluations called. Container found:', !!container, 'Items:', sharedEvaluations.length);
         if (!container) return;
 
         if (sharedEvaluations.length === 0) {
           container.innerHTML = '<li style="color: #999; padding: 10px;">No shared evaluations yet</li>';
+          console.log('No evaluations to display');
           return;
         }
 
