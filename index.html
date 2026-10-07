@@ -1411,6 +1411,19 @@
         return 'high';
       }
 
+      function getScoreLevelColor(score) {
+        const value = Number(score);
+        // History/shared scores are computeScore() output on a 0-100 scale,
+        // while per-feature scores (e.g. e.score on an individual evaluator
+        // badge) are on a 0-10 scale. Normalize to 0-10 so one set of
+        // thresholds classifies both consistently.
+        const normalized = value > 10 ? value / 10 : value;
+        if (Number.isNaN(normalized)) return '#f39c12';
+        if (normalized >= 8) return '#27ae60'; // Green - High (strong privacy posture)
+        if (normalized >= 5) return '#f39c12'; // Orange - Moderate
+        return '#e74c3c'; // Red - Low (needs attention)
+      }
+
       function setScoreBadgeLevel(element, value) {
         if (!element) return;
         const safeValue = Number.isFinite(Number(value)) ? Number(value) : 0;
