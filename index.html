@@ -1,0 +1,3550 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PINE Calculator - Privacy Index for Non-HIPAA Entities</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --panel: #ffffff;
+        --panel-alt: #eef6ff;
+        --ink: #10213a;
+        --muted: #53657d;
+        --border: #dfeaf8;
+        --shadow: 0 18px 45px rgba(16, 33, 58, 0.12);
+        --navy: #10213a;
+        --indigo: #4f46e5;
+        --sky: #38bdf8;
+        --mint: #14b8a6;
+        --lime: #84cc16;
+        --amber: #f59e0b;
+        --orange: #f97316;
+        --red: #ef4444;
+        --rose: #fb7185;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #eef6ff 0%, #f4f7fb 35%, #ecfeff 100%);
+        color: var(--ink);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 24px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--mint), var(--indigo), var(--sky));
+        position: relative;
+        box-shadow: inset 0 2px 12px rgba(255,255,255,0.4), 0 10px 22px rgba(79, 70, 229, 0.25);
+      }
+
+      .brand-mark::before {
+        content: "";
+        position: absolute;
+        inset: 11px;
+        border-radius: 9px;
+        background: rgba(255,255,255,0.28);
+        border: 2px solid rgba(255,255,255,0.48);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 2.3vw, 2.8rem);
+      }
+
+      .badge {
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: rgba(20, 184, 166, 0.12);
+        border: 1px solid rgba(20, 184, 166, 0.18);
+        color: var(--navy);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.74rem;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1.35fr 0.95fr;
+        gap: 24px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .form-panel {
+        padding: 24px;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .feature-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 12px;
+        height: 100%;
+      }
+
+      .feature-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 12px;
+      }
+
+      .feature-header label {
+        display: block;
+        font-weight: 800;
+        color: var(--navy);
+        margin-bottom: 4px;
+      }
+
+      .feature-header small {
+        display: block;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .feature-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: rgba(148, 163, 184, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 12px;
+        padding: 8px 10px;
+      }
+
+      .feature-meta label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin: 0;
+      }
+
+      .feature-meta select {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: white;
+        color: var(--navy);
+        padding: 8px 10px;
+        font-weight: 700;
+      }
+
+      .feature-score {
+        min-width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: rgba(79, 70, 229, 0.08);
+        border: 1px solid rgba(79, 70, 229, 0.12);
+        color: var(--navy);
+        font-weight: 900;
+      }
+
+      .feature-score[data-level="low"] {
+        background: rgba(239, 68, 68, 0.18);
+        border-color: rgba(239, 68, 68, 0.38);
+        color: #ffffff;
+      }
+
+      .feature-score[data-level="moderate"] {
+        background: rgba(245, 158, 11, 0.20);
+        border-color: rgba(245, 158, 11, 0.45);
+        color: var(--navy);
+      }
+
+      .feature-score[data-level="high"] {
+        background: rgba(20, 184, 166, 0.18);
+        border-color: rgba(20, 184, 166, 0.45);
+        color: var(--navy);
+      }
+
+      .feature-button {
+        width: 100%;
+        align-self: stretch;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--mint), var(--sky));
+        color: white;
+        font-weight: 800;
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 10px 18px rgba(56, 189, 248, 0.18);
+        margin-top: auto;
+      }
+
+      .feature-button:hover {
+        transform: translateY(-1px);
+      }
+
+      .feature-button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .summary-panel {
+        padding: 24px;
+        background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+      }
+
+      .score-wrap {
+        background: linear-gradient(135deg, rgba(20,184,166,0.13), rgba(79,70,229,0.08));
+        border: 1px solid rgba(79,70,229,0.12);
+        border-radius: 22px;
+        padding: 20px;
+      }
+
+      .result-row {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .score { 
+        font-size: clamp(2.7rem, 5vw, 4.4rem);
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        color: var(--navy);
+      }
+
+      .score-tag {
+        padding: 9px 12px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.74rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .meter {
+        position: relative;
+        width: 100%;
+        height: 18px;
+        background: linear-gradient(90deg, rgba(239,68,68,0.18), rgba(245,158,11,0.2), rgba(20,184,166,0.18), rgba(79,70,229,0.18));
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid rgba(16, 33, 58, 0.08);
+      }
+
+      .meter-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--red), var(--amber), var(--mint), var(--indigo));
+        transition: width 0.45s ease;
+      }
+
+      .legend {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+
+      .risk-box {
+        margin-top: 24px;
+        padding: 18px;
+        border-radius: 18px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+      }
+
+      .risk-box h3 {
+        margin: 0 0 8px 0;
+        font-size: 0.96rem;
+      }
+
+      .risk-box p {
+        margin: 0;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .stats {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .stat {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 14px 12px;
+      }
+
+      .stat small {
+        display: block;
+        color: var(--muted);
+        margin-bottom: 5px;
+      }
+
+      .stat strong {
+        font-size: 1.1rem;
+      }
+
+      .footer-note {
+        margin-top: 18px;
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(16, 33, 58, 0.52);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+      }
+
+      .modal-backdrop.open {
+        display: flex;
+      }
+
+      .modal {
+        width: min(620px, 100%);
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 24px 48px rgba(16, 33, 58, 0.25);
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+
+      .modal-header {
+        padding: 20px 22px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+      }
+
+      .close-button {
+        border: none;
+        background: rgba(16, 33, 58, 0.06);
+        border-radius: 10px;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: var(--navy);
+      }
+
+      .modal-body {
+        padding: 22px;
+      }
+
+      .rubric-list {
+        margin: 0 0 20px 0;
+        padding-left: 18px;
+        color: var(--muted);
+        display: grid;
+        gap: 10px;
+      }
+
+      .rubric-list li {
+        line-height: 1.5;
+      }
+
+      .rubric-list strong {
+        color: var(--navy);
+      }
+
+      .score-picker {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 8px;
+      }
+
+      .score-picker input[type="range"] {
+        flex: 1;
+        appearance: none;
+        height: 10px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--red), var(--amber), var(--mint), var(--indigo));
+        outline: none;
+      }
+
+      .score-picker input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid var(--navy);
+        cursor: pointer;
+      }
+
+      .score-badge {
+        min-width: 54px;
+        text-align: center;
+        font-weight: 900;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: var(--panel-alt);
+        border: 1px solid var(--border);
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .score-badge[data-level="low"] {
+        background: rgba(239, 68, 68, 0.18);
+        color: #ffffff;
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+
+      .score-badge[data-level="moderate"] {
+        background: rgba(245, 158, 11, 0.20);
+        color: #10213a;
+        border-color: rgba(245, 158, 11, 0.45);
+      }
+
+      .score-badge[data-level="high"] {
+        background: rgba(20, 184, 166, 0.18);
+        color: #10213a;
+        border-color: rgba(20, 184, 166, 0.45);
+      }
+
+      .modal-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .header-actions > * {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .secondary-btn, .primary-btn {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .start-screen {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 20px;
+        background: linear-gradient(135deg, #eef6ff 0%, #f4f7fb 35%, #ecfeff 100%);
+      }
+
+      .start-card {
+        width: min(700px, 100%);
+        padding: 30px;
+      }
+
+      .start-header {
+        margin-bottom: 28px;
+      }
+
+      .start-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+
+      .start-form label {
+        font-weight: 800;
+        color: var(--navy);
+      }
+
+      .start-form input {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+        font-size: 1rem;
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .large-btn {
+        width: 100%;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 18px;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      .history-panel {
+        border-top: 1px solid var(--border);
+        padding-top: 18px;
+      }
+
+      .history-panel h3 {
+        margin: 0 0 12px 0;
+        color: var(--navy);
+      }
+
+      .history-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 10px;
+      }
+
+      .history-item {
+        margin: 0;
+      }
+
+      .history-button {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        text-align: left;
+        cursor: pointer;
+        color: var(--navy);
+        font-weight: 700;
+      }
+
+      .history-button small {
+        color: var(--muted);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .empty-state {
+        color: var(--muted);
+        padding: 12px 8px;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        background: rgba(148, 163, 184, 0.06);
+      }
+
+      .portfolio-card {
+        margin-top: 24px;
+        border-top: 1px solid var(--border);
+        padding-top: 28px;
+      }
+
+      .portfolio-card h3 {
+        margin: 0 0 12px 0;
+        color: var(--navy);
+      }
+
+      .portfolio-chart {
+        display: grid;
+        gap: 12px;
+      }
+
+      .chart-row {
+        display: grid;
+        grid-template-columns: minmax(110px, 1.1fr) minmax(110px, 2.2fr) auto;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .chart-name {
+        font-size: 0.82rem;
+        color: var(--navy);
+        font-weight: 700;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .chart-track {
+        position: relative;
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(148, 163, 184, 0.18), rgba(148, 163, 184, 0.09));
+        overflow: hidden;
+      }
+
+      .chart-bar {
+        position: absolute;
+        inset: 0 auto 0 0;
+        border-radius: inherit;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+      }
+
+      .chart-score {
+        min-width: 2.5rem;
+        text-align: right;
+        font-weight: 800;
+        font-size: 0.8rem;
+      }
+
+      @media (max-width: 860px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+  </head>
+  <body>
+    <div id="appStartScreen" class="start-screen">
+      <div class="panel start-card">
+        <div class="start-header">
+          <div class="brand">
+            <img src="PINE-logo.png" alt="PINE Logo" style="width: 44px; height: 44px; border-radius: 14px; object-fit: contain;" />
+            <div>
+              <h1>PINE Calculator</h1>
+              <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--muted);">Privacy Index for Non-HIPAA Entities</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="start-form">
+          <label for="userNameInput">Your name</label>
+          <input id="userNameInput" type="text" placeholder="e.g. John Smith" />
+          <label for="appNameInput">App name to evaluate</label>
+          <input id="appNameInput" type="text" placeholder="e.g. CarePulse App" />
+          <button id="startEvaluationBtn" type="button" class="primary-btn large-btn">Start evaluation</button>
+        </div>
+
+        <div class="portfolio-card">
+          <h3>Shared Evaluations</h3>
+          <div id="sharedEvaluationsContainer" style="margin-top: 15px;">
+            <div id="sharedEvaluationsList" class="history-list"></div>
+            <button id="refreshSharedBtn" type="button" class="secondary-btn" style="margin-top: 10px; width: 100%;">Refresh shared evaluations</button>
+          </div>
+        </div>
+
+        <div class="history-panel">
+          <h3>Your recent evaluations</h3>
+          <ul id="evaluationHistoryList" class="history-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="evaluationScreen" class="container" style="display: none;">
+      <div class="header">
+        <div class="brand">
+          <img src="PINE-logo.png" alt="PINE Logo" style="width: 44px; height: 44px; border-radius: 14px; object-fit: contain;" />
+          <div>
+            <h1 id="currentAppNameTitle">PINE Calculator</h1>
+            <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--muted);">Privacy Index for Non-HIPAA Entities</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="backToAppInputBtn" type="button" class="secondary-btn">Back to app input</button>
+          <div class="badge" id="currentAppNameBadge">Privacy Palette</div>
+          <button id="shareEvaluationBtn" type="button" class="secondary-btn">Share evaluation</button>
+          <button id="resetCalculationsBtn" type="button" class="secondary-btn">Reset calculations</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel form-panel">
+          <div class="feature-grid" id="featureGrid"></div>
+        </section>
+
+        <aside class="panel summary-panel">
+          <div class="score-wrap">
+            <div class="result-row">
+              <div class="score" id="scoreValue">77</div>
+              <div class="score-tag" id="scoreTag">Strong</div>
+            </div>
+
+            <div class="meter" aria-label="Privacy score meter">
+              <div class="meter-fill" id="meterFill"></div>
+            </div>
+
+            <div class="legend">
+              <span>Low</span>
+              <span>Moderate</span>
+              <span>High</span>
+            </div>
+          </div>
+
+          <div class="risk-box">
+            <h3>Assessment</h3>
+            <p id="assessmentText">
+              The app evaluated demonstrates solid privacy hygiene with good access controls, encryption, and operational monitoring.
+            </p>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <small>Weighted score</small>
+              <strong id="weightedScore">77/100</strong>
+            </div>
+            <div class="stat">
+              <small>Risk level</small>
+              <strong id="riskLevel">Low</strong>
+            </div>
+            <div class="stat">
+              <small>Priority</small>
+              <strong id="priorityLevel">Improve retention</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="footer-note">
+        Privacy Index = weighted average of control maturity across key data protection dimensions.
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="shareModal" aria-hidden="true" inert>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+        <div class="modal-header">
+          <h2 id="shareModalTitle">Share Evaluation</h2>
+          <button class="close-button" type="button" aria-label="Close" id="closeShareModal">×</button>
+        </div>
+        <div class="modal-body">
+          <p>Your evaluation will be shared with others viewing this calculator.</p>
+          <div style="margin: 20px 0; padding: 15px; background: #f0f0f0; border-radius: 4px;">
+            <strong>Evaluation:</strong> <span id="shareEvalName"></span><br/>
+            <strong>Reviewer:</strong> <span id="shareEvalUser"></span><br/>
+            <strong>Score:</strong> <span id="shareEvalScore"></span>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn" id="cancelShareModal">Cancel</button>
+            <button type="button" class="primary-btn" id="confirmShareBtn">Share to Cloud</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="featureModal" aria-hidden="true" inert>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-header">
+          <h2 id="modalTitle">Feature rubric</h2>
+          <button class="close-button" type="button" aria-label="Close" id="closeModal">×</button>
+        </div>
+        <div class="modal-body">
+          <ul class="rubric-list" id="modalRubricList"></ul>
+
+          <div>
+            <strong>Score this feature</strong>
+            <div class="score-picker">
+              <input id="modalScore" type="range" min="0" max="10" value="0" />
+              <div class="score-badge" id="modalScoreValue">0</div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn" id="cancelModal">Cancel</button>
+            <button type="button" class="primary-btn" id="saveFeatureScore">Save score</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <script>
+      const featureDefinitions = {
+        pushNotificationsScreens: {
+          label: 'Push notifications and screen captures',
+          description: 'Sensitive content exposure in user alerts/screens',
+          rubric: [
+            { title: 'Notification content', text: 'Push notifications avoid exposing sensitive health or personal data in message body or preview.' },
+            { title: 'Screenshot controls', text: 'App prevents or minimizes exposing protected content in screenshots, previews, or app switcher views.' },
+            { title: 'User controls', text: 'Users can disable previews, alerts, or captures for sensitive content and sessions.' }
+          ],
+          initial: 7
+        },
+        piiLeakageLogsCrashReports: {
+          label: 'PII leakage through logs and crash reports',
+          description: 'Sanitization of diagnostic data',
+          rubric: [
+            { title: 'Log hygiene', text: 'Logs exclude raw identifiers, health data, and sensitive user metadata.' },
+            { title: 'Crash-report filtering', text: 'Crash reports redact or omit PII before collection or transmission.' },
+            { title: 'Monitoring controls', text: 'Diagnostic pipelines include automated checks for accidental disclosure.' }
+          ],
+          initial: 6
+        },
+        dataBackups: {
+          label: 'Data backups for the app',
+          description: 'Backup security and retention',
+          rubric: [
+            { title: 'Protection scope', text: 'Backups are encrypted and scoped to only data required for service continuity.' },
+            { title: 'Access control', text: 'Backup repositories use strong access restrictions and auditing.' },
+            { title: 'Recovery hygiene', text: 'Backup recovery is tested and restoration procedures avoid exposing sensitive data.' }
+          ],
+          initial: 7
+        },
+        ageAppropriatePrivacy: {
+          label: 'Age-appropriate privacy controls',
+          description: 'User age-range protections',
+          rubric: [
+            { title: 'Age segmentation', text: 'The app identifies and applies protections based on user age group or data sensitivity.' },
+            { title: 'Child-safe defaults', text: 'Younger-user settings are privacy-preserving by default and minimize unnecessary collection.' },
+            { title: 'Consent suitability', text: 'Consent and disclosures are appropriate for the user age group and comprehension level.' }
+          ],
+          initial: 7
+        },
+        onDeviceVsCloudPrediction: {
+          label: 'On-device vs. cloud prediction processing',
+          description: 'Where health predictions are computed',
+          rubric: [
+            { title: 'Processing location', text: 'Prediction workloads prefer on-device processing when it reduces exposure risk.' },
+            { title: 'Data minimization', text: 'Only required features or model inputs are transmitted to remote services.' },
+            { title: 'Risk review', text: 'Cloud processing uses documented controls, approvals, and data flow restrictions.' }
+          ],
+          initial: 8
+        },
+        embeddedSdksHealthData: {
+          label: 'Embedded SDKs forwarding health data',
+          description: 'Third-party analytics/ad SDK risk',
+          rubric: [
+            { title: 'SDK inventory', text: 'All embedded SDKs are inventoried and classified by data sensitivity and use.' },
+            { title: 'Health-data prevention', text: 'SDKs do not receive raw health data or identifiers without explicit necessity and consent.' },
+            { title: 'Vendor boundaries', text: 'Third-party contracts restrict data use, retention, and sharing for health-related flows.' }
+          ],
+          initial: 5
+        },
+        accountPurgeSharedAccounts: {
+          label: 'Purge account / backup / shared accounts / logs',
+          description: 'Deletion and account lifecycle controls',
+          rubric: [
+            { title: 'Account deletion', text: 'User account removal triggers full purge of personal data, backups, and access tokens where required.' },
+            { title: 'Shared account controls', text: 'Shared or family accounts limit visibility and isolate data boundaries.' },
+            { title: 'Log lifecycle', text: 'Logs, backups, and stale records are deleted or anonymized on a defined schedule.' }
+          ],
+          initial: 6
+        },
+        piiUrlQueryParams: {
+          label: 'PII in URL query parameters',
+          description: 'URL leakage risk',
+          rubric: [
+            { title: 'Parameter hygiene', text: 'URLs do not include personal identifiers, health details, or tokens.' },
+            { title: 'Logging mitigation', text: 'Query strings are stripped or redacted from logs, analytics, and error reporting.' },
+            { title: 'Secure sharing', text: 'Any necessary deep links are designed to avoid exposing sensitive data in browser history or referrers.' }
+          ],
+          initial: 5
+        },
+        dataMinimizationPermissionOverreach: {
+          label: 'Data minimization / permission overreach',
+          description: 'Over-collection and over-permissioning',
+          rubric: [
+            { title: 'Need-to-know collection', text: 'Only the minimum necessary data is collected for the feature or workflow.' },
+            { title: 'Permission scope', text: 'App permissions are limited to what is required and justified by real functionality.' },
+            { title: 'Review discipline', text: 'New features include a documented privacy review for unnecessary or excessive data access.' }
+          ],
+          initial: 6
+        },
+        dataSharingConsent: {
+          label: 'Data sharing consent',
+          description: 'Explicit consent and transparency',
+          rubric: [
+            { title: 'Transparency', text: 'Users receive clear, specific notice of what data is shared and with whom.' },
+            { title: 'Consent quality', text: 'Consent is informed, voluntary, and specific to the data use or recipient.' },
+            { title: 'Revocation', text: 'Users can withdraw consent and have downstream sharing changes applied in a timely manner.' }
+          ],
+          initial: 7
+        },
+        dataEncryption: {
+          label: 'Data encryption',
+          description: 'Encryption for data in use, transit, and rest',
+          rubric: [
+            { title: 'Encryption in transit', text: 'All sensitive data is encrypted while moving between devices, services, and APIs.' },
+            { title: 'Encryption at rest', text: 'Stored health and personal datasets are encrypted with strong and managed key controls.' },
+            { title: 'Device handling', text: 'Local encryption and secure storage are used for cached or persisted user data.' }
+          ],
+          initial: 8
+        },
+        accountSharingFeatures: {
+          label: 'Account sharing features',
+          description: 'Multi-user access and compartmentalization',
+          rubric: [
+            { title: 'Sharing model', text: 'Shared accounts are designed with clear boundaries and access roles.' },
+            { title: 'Data isolation', text: 'One user’s data is not exposed to another user without explicit authorization.' },
+            { title: 'Auditability', text: 'Shared access events are logged and monitored for privacy violations or misuse.' }
+          ],
+          initial: 6
+        },
+        firmwareUpdateDevice: {
+          label: 'Firmware update needed in a device',
+          description: 'Update and device security posture',
+          rubric: [
+            { title: 'Update coverage', text: 'The product tracks whether required firmware or device updates are necessary for security.' },
+            { title: 'Patch readiness', text: 'Update pathways exist and are operationally feasible for impacted device populations.' },
+            { title: 'Risk communication', text: 'Users are notified of required updates and their impact on privacy and security.' }
+          ],
+          initial: 7
+        },
+        breachNotificationTimeWindow: {
+          label: 'Breach notification time window',
+          description: 'Response readiness and reporting',
+          rubric: [
+            { title: 'Detection speed', text: 'The team can detect and triage potential breaches quickly within required timeframes.' },
+            { title: 'Notification workflow', text: 'A clear breach escalation and notification process exists for regulators and affected users.' },
+            { title: 'Practice maturity', text: 'The process is tested and can meet ambitious legal or contractual notification timelines.' }
+          ],
+          initial: 7
+        }
+      };
+
+      const weights = {
+        pushNotificationsScreens: 1.15,
+        piiLeakageLogsCrashReports: 1.35,
+        dataBackups: 1.1,
+        ageAppropriatePrivacy: 1.1,
+        onDeviceVsCloudPrediction: 1.25,
+        embeddedSdksHealthData: 1.35,
+        accountPurgeSharedAccounts: 1.2,
+        piiUrlQueryParams: 1.35,
+        dataMinimizationPermissionOverreach: 1.3,
+        dataSharingConsent: 1.2,
+        dataEncryption: 1.25,
+        accountSharingFeatures: 1.15,
+        firmwareUpdateDevice: 1.0,
+        breachNotificationTimeWindow: 1.25
+      };
+
+      const featureModalSelections = {
+        pushNotificationsScreens: {
+          lockScreen: false,
+          piiNotifications: false,
+          screenshots: false
+        },
+        piiLeakageLogsCrashReports: {
+          fullProfileVisible: false,
+          partialPiiInLogs: false,
+          anonymizedCrashReports: true
+        }
+      };
+
+      const STORAGE_PREFIX = 'privacyIndexApp_';
+      const HISTORY_KEY = 'privacyIndexHistory';
+      const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyCAvmNgINLF-wvOpUUYiGT0vjtTxDrBoD4",
+        authDomain: "pine-calculator.firebaseapp.com",
+        projectId: "pine-calculator",
+        storageBucket: "pine-calculator.firebasestorage.app",
+        messagingSenderId: "455821201356",
+        appId: "1:455821201356:web:abe28fd3da08076b659769",
+        measurementId: "G-H0GXK9K96P"
+      };
+      
+      let currentAppName = '';
+      let currentUserName = '';
+      let firebaseInitialized = false;
+      let database = null;
+      let sharedEvaluations = [];
+
+      // Initialize Firebase
+      function initializeFirebase() {
+        try {
+          if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length === 0) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+            database = firebase.database();
+            firebaseInitialized = true;
+            loadSharedEvaluations();
+          }
+        } catch (error) {
+          console.warn('Firebase initialization skipped:', error.message);
+        }
+      }
+
+      // Load evaluations shared by others
+      function loadSharedEvaluations() {
+        if (!firebaseInitialized || !database) return;
+        
+        const evaluationsRef = database.ref('evaluations');
+        evaluationsRef.on('value', (snapshot) => {
+          const data = snapshot.val();
+          sharedEvaluations = data ? Object.values(data) : [];
+          renderSharedEvaluations();
+        });
+      }
+
+      // Render shared evaluations in the list
+      function renderSharedEvaluations() {
+        const container = document.getElementById('sharedEvaluationsList');
+        if (!container) return;
+
+        if (sharedEvaluations.length === 0) {
+          container.innerHTML = '<li style="color: #999; padding: 10px;">No shared evaluations yet</li>';
+          return;
+        }
+
+        // Group by app name
+        const appGroups = {};
+        sharedEvaluations.forEach((eval) => {
+          if (!appGroups[eval.appName]) {
+            appGroups[eval.appName] = [];
+          }
+          appGroups[eval.appName].push(eval);
+        });
+
+        container.innerHTML = Object.entries(appGroups)
+          .sort((a, b) => (b[1][0]?.timestamp || 0) - (a[1][0]?.timestamp || 0))
+          .slice(0, 10)
+          .map(([appName, evaluations]) => {
+            const sorted = [...evaluations].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            const latestEval = sorted[0];
+            const scoreColor = getScoreLevelColor(latestEval.weightedScore);
+            const hasMultiple = sorted.length > 1;
+            const visibleEvaluators = sorted.slice(0, 6);
+            const extraCount = sorted.length - visibleEvaluators.length;
+            const allEvaluatorsList = visibleEvaluators.map((e) => {
+              const badgeColor = getScoreLevelColor(e.weightedScore);
+              return `<span class="shared-evaluator-badge" data-app-name="${escapeHtml(appName)}" data-user-name="${escapeHtml(e.userName)}" style="display: inline-flex; align-items: center; gap: 4px; background: ${badgeColor}; color: #fff; padding: 2px 8px 2px 10px; border-radius: 12px; font-size: 11px; margin-right: 4px; margin-bottom: 4px; cursor: pointer; font-weight: 600;">${escapeHtml(e.userName)}<span style="background: rgba(255,255,255,0.3); border-radius: 8px; padding: 1px 6px;">${e.weightedScore}</span></span>`;
+            }).join('') + (extraCount > 0 ? `<span style="display: inline-block; color: #999; font-size: 11px; margin-left: 2px;">+${extraCount} more</span>` : '');
+
+            return `
+              <li class="shared-history-item" data-app-name="${escapeHtml(appName)}" data-single-user="${hasMultiple ? '' : escapeHtml(latestEval.userName)}" style="margin-bottom: 12px; padding: 14px; border-left: 5px solid ${scoreColor}; background: linear-gradient(to right, rgba(255,255,255,0) 0%, #f9f9f9 20%); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <div>
+                    <strong style="font-size: 15px;">${escapeHtml(appName)}</strong>
+                    ${hasMultiple ? `<div style="font-size: 11px; color: #999; margin-top: 4px;">${sorted.length} evaluations</div>` : ''}
+                  </div>
+                  <div style="background: ${scoreColor}; color: white; padding: 6px 12px; border-radius: 14px; font-weight: bold; font-size: 14px; text-align: center;">${latestEval.weightedScore}</div>
+                </div>
+                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Latest by <strong>${escapeHtml(latestEval.userName)}</strong> • ${new Date(latestEval.timestamp).toLocaleDateString()}</div>
+                ${hasMultiple ? `
+                  <div style="margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 11px; color: #666; margin-bottom: 4px;">Evaluated by (color = their score):</div>
+                    ${allEvaluatorsList}
+                  </div>
+                  <div style="margin-top: 8px; font-size: 12px; color: #0066cc;"><a href="javascript:void(0)" class="shared-view-all-link" data-app-name="${escapeHtml(appName)}">📊 View all ${sorted.length} evaluations</a></div>
+                ` : ''}
+              </li>
+            `;
+          })
+          .join('');
+
+        document.querySelectorAll('.shared-evaluator-badge').forEach((badge) => {
+          badge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            loadSharedEvaluation(badge.dataset.appName, badge.dataset.userName);
+          });
+        });
+        document.querySelectorAll('.shared-view-all-link').forEach((link) => {
+          link.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showSharedAppComparison(link.dataset.appName);
+          });
+        });
+        document.querySelectorAll('.shared-history-item').forEach((item) => {
+          item.addEventListener('click', (e) => {
+            if (e.target.closest('.shared-evaluator-badge') || e.target.closest('.shared-view-all-link')) return;
+            const appName = item.dataset.appName;
+            const singleUser = item.dataset.singleUser;
+            if (singleUser) {
+              loadSharedEvaluation(appName, singleUser);
+            } else {
+              showSharedAppComparison(appName);
+            }
+          });
+        });
+      }
+
+      function showSharedAppComparison(appName) {
+        const evaluations = sharedEvaluations.filter((item) => item.appName === appName);
+        
+        if (!evaluations.length) {
+          alert('No evaluations found for this app');
+          return;
+        }
+
+        // Create a comparison modal
+        const modal = document.createElement('div');
+        modal.className = 'modal-backdrop';
+        modal.id = 'sharedComparisonModal';
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        
+        const comparisonTable = evaluations
+          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+          .map((eval, idx) => {
+            const scoreColor = getScoreLevelColor(eval.weightedScore);
+            return `
+              <div style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; hover: background: #f5f5f5;" onclick="loadSharedEvaluation('${escapeHtml(eval.appName)}', '${escapeHtml(eval.userName)}'); document.getElementById('sharedComparisonModal').remove();">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <strong>${escapeHtml(eval.userName)}</strong><br/>
+                    <small style="color: #999;">${new Date(eval.timestamp).toLocaleDateString()}</small>
+                  </div>
+                  <div style="background: ${scoreColor}; color: white; padding: 8px 14px; border-radius: 12px; font-weight: bold;">${eval.weightedScore}</div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+
+        modal.innerHTML = `
+          <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+              <h2>${escapeHtml(appName)} - Cloud Evaluations (${evaluations.length})</h2>
+              <button class="close-button" type="button" aria-label="Close" onclick="document.getElementById('sharedComparisonModal').remove();">×</button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+              ${comparisonTable}
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="secondary-btn" onclick="document.getElementById('sharedComparisonModal').remove();">Close</button>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.remove();
+          }
+        });
+      }
+
+      // Load a shared evaluation
+      function loadSharedEvaluation(appName, userName) {
+        const evaluation = sharedEvaluations.find(e => e.appName === appName && e.userName === userName);
+        if (!evaluation) {
+          alert('Evaluation not found');
+          return;
+        }
+
+        currentAppName = appName;
+        currentUserName = userName;
+        featureScores = evaluation.featureScores || { ...defaultFeatureScores };
+        featureApplicability = evaluation.featureApplicability || { ...defaultFeatureApplicability };
+
+        document.getElementById('currentAppNameTitle').textContent = appName;
+        document.getElementById('currentAppNameBadge').textContent = appName;
+        document.getElementById('appStartScreen').style.display = 'none';
+        document.getElementById('evaluationScreen').style.display = 'block';
+        renderFeatures();
+        updateUI();
+      }
+
+      // Share current evaluation to cloud
+      function shareEvaluationToCloud() {
+        if (!firebaseInitialized || !database) {
+          alert('Cloud sharing is not available. Evaluations are saved locally.');
+          return;
+        }
+
+        const evaluationId = `${encodeURIComponent(currentAppName)}_${Date.now()}`;
+        const evaluationData = {
+          appName: currentAppName,
+          userName: currentUserName,
+          featureScores: featureScores,
+          featureApplicability: featureApplicability,
+          weightedScore: calculateWeightedScore(),
+          timestamp: Date.now()
+        };
+
+        database.ref(`evaluations/${evaluationId}`).set(evaluationData)
+          .then(() => {
+            alert('Evaluation shared successfully!');
+            closeShareModal();
+            loadSharedEvaluations();
+          })
+          .catch((error) => {
+            alert('Error sharing evaluation: ' + error.message);
+          });
+      }
+
+      function calculateWeightedScore() {
+        const applicableFeatures = Object.entries(featureScores)
+          .filter(([key]) => featureApplicability[key] !== false);
+        
+        if (applicableFeatures.length === 0) return 0;
+
+        const totalWeightedScore = applicableFeatures.reduce((sum, [key, score]) => {
+          const weight = weights[key] || 1;
+          return sum + (Number(score) * weight);
+        }, 0);
+
+        const totalWeight = applicableFeatures.reduce((sum, [key]) => {
+          return sum + (weights[key] || 1);
+        }, 0);
+
+        return Math.round(totalWeightedScore / totalWeight);
+      }
+
+      function openShareModal() {
+        document.getElementById('shareEvalName').textContent = currentAppName;
+        document.getElementById('shareEvalUser').textContent = currentUserName;
+        document.getElementById('shareEvalScore').textContent = calculateWeightedScore();
+        document.getElementById('shareModal').removeAttribute('inert');
+        document.getElementById('shareModal').setAttribute('aria-hidden', 'false');
+        document.getElementById('shareModal').style.display = 'flex';
+      }
+
+      function closeShareModal() {
+        document.getElementById('shareModal').setAttribute('inert', '');
+        document.getElementById('shareModal').setAttribute('aria-hidden', 'true');
+        document.getElementById('shareModal').style.display = 'none';
+      }
+
+      function getDefaultFeatureScores() {
+        return Object.fromEntries(
+          Object.entries(featureDefinitions).map(([key, value]) => [key, value.initial])
+        );
+      }
+
+      function getDefaultFeatureApplicability() {
+        return Object.fromEntries(
+          Object.keys(featureDefinitions).map((key) => [key, true])
+        );
+      }
+
+      const defaultFeatureScores = getDefaultFeatureScores();
+      const defaultFeatureApplicability = getDefaultFeatureApplicability();
+
+      let featureScores = { ...defaultFeatureScores };
+      let featureApplicability = { ...defaultFeatureApplicability };
+
+      function getAppStorageKey(appName, userName) {
+        const appSlug = encodeURIComponent(appName.trim().toLowerCase());
+        if (userName) {
+          const userSlug = encodeURIComponent(userName.trim().toLowerCase());
+          return `${STORAGE_PREFIX}${appSlug}::${userSlug}`;
+        }
+        return `${STORAGE_PREFIX}${appSlug}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function getScoreLevel(score) {
+        const value = Number(score);
+        if (Number.isNaN(value)) return 'moderate';
+        if (value <= 3) return 'low';
+        if (value <= 7) return 'moderate';
+        return 'high';
+      }
+
+      function setScoreBadgeLevel(element, value) {
+        if (!element) return;
+        const safeValue = Number.isFinite(Number(value)) ? Number(value) : 0;
+        const normalizedValue = String(safeValue);
+        const nextLevel = getScoreLevel(safeValue);
+
+        if (element.dataset.level !== nextLevel || element.textContent !== normalizedValue) {
+          element.dataset.level = nextLevel;
+          element.textContent = normalizedValue;
+        }
+      }
+
+      function getPushNotificationScore(selection) {
+        const scoring = [
+          { key: 'lockScreen', yes: 4, no: 10 },
+          { key: 'piiNotifications', yes: 2, no: 10 },
+          { key: 'screenshots', yes: 10, no: 0, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === null || value === undefined) return item.na ?? item.no;
+          return item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderPushNotificationQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          lockScreen: false,
+          piiNotifications: false,
+          screenshots: false
+        };
+
+        const questions = [
+          {
+            key: 'lockScreen',
+            label: 'Exposure on lock screen',
+            yesValue: 4,
+            noValue: 10
+          },
+          {
+            key: 'piiNotifications',
+            label: 'Presence of PII/PHI in notifications',
+            yesValue: 2,
+            noValue: 10
+          },
+          {
+            key: 'screenshots',
+            label: 'Black screen on taking screenshots',
+            yesValue: 10,
+            noValue: 0,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                ${question.key === 'screenshots' ? `
+                  &nbsp;&nbsp;
+                  <label>
+                    <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                  </label>
+                ` : ''}
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            lockScreen: document.querySelector('input[name="lockScreen"]:checked')?.value === 'yes',
+            piiNotifications: document.querySelector('input[name="piiNotifications"]:checked')?.value === 'yes',
+            screenshots: (() => {
+              const value = document.querySelector('input[name="screenshots"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+
+          featureModalSelections[featureId] = answers;
+          const computed = getPushNotificationScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="lockScreen"], input[name="piiNotifications"], input[name="screenshots"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+
+        updateComputedValue();
+      }
+
+      function getOnDeviceVsCloudPredictionScore(selection) {
+        const scoring = [
+          { key: 'rawSensorTransmitted', yes: 2, no: 10, na: 10 },
+          { key: 'inferenceThirdPartyApi', yes: 2, no: 10, na: 10 },
+          { key: 'inferenceServerSideDurable', yes: 4, no: 10, na: 10 },
+          { key: 'inferenceLocationDisclosure', yes: 10, no: 6, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderOnDeviceVsCloudPredictionQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          rawSensorTransmitted: false,
+          inferenceThirdPartyApi: false,
+          inferenceServerSideDurable: false,
+          inferenceLocationDisclosure: false
+        };
+
+        const questions = [
+          {
+            key: 'rawSensorTransmitted',
+            label: 'Raw sensor/biometric data transmitted to cloud for inference',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'inferenceThirdPartyApi',
+            label: 'Inference routed to third-party LLM/ML API without DPA/BAA',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'inferenceServerSideDurable',
+            label: 'Derived inference stored server-side linked to a durable identity',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'inferenceLocationDisclosure',
+            label: 'No disclosure of where inference runs',
+            yesValue: 10,
+            noValue: 6,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                </label>
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            rawSensorTransmitted: document.querySelector('input[name="rawSensorTransmitted"]:checked')?.value === 'yes',
+            inferenceThirdPartyApi: document.querySelector('input[name="inferenceThirdPartyApi"]:checked')?.value === 'yes',
+            inferenceServerSideDurable: document.querySelector('input[name="inferenceServerSideDurable"]:checked')?.value === 'yes',
+            inferenceLocationDisclosure: (() => {
+              const value = document.querySelector('input[name="inferenceLocationDisclosure"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+
+          featureModalSelections[featureId] = answers;
+          const computed = getOnDeviceVsCloudPredictionScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="rawSensorTransmitted"], input[name="inferenceThirdPartyApi"], input[name="inferenceServerSideDurable"], input[name="inferenceLocationDisclosure"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+
+        updateComputedValue();
+      }
+
+      function getAgeAppropriatePrivacyScore(selection) {
+        const scoring = [
+          { key: 'ageVerification', yes: 10, no: 8, na: 10 },
+          { key: 'childProtection', yes: 10, no: 4, na: 10 },
+          { key: 'parentalConsent', yes: 10, no: 4, na: 10 },
+          { key: 'childPrivacyCompliance', yes: 10, no: 4, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderAgeAppropriatePrivacyQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          ageVerification: false,
+          childProtection: false,
+          parentalConsent: false,
+          childPrivacyCompliance: false
+        };
+
+        const questions = [
+          {
+            key: 'ageVerification',
+            label: 'Age verification feature in the app?',
+            yesValue: 10,
+            noValue: 8,
+            naValue: 10
+          },
+          {
+            key: 'childProtection',
+            label: 'Protection for children/teens',
+            yesValue: 10,
+            noValue: 4,
+            naValue: 10
+          },
+          {
+            key: 'parentalConsent',
+            label: 'Parental or guardian consent',
+            yesValue: 10,
+            noValue: 4,
+            naValue: 10
+          },
+          {
+            key: 'childPrivacyCompliance',
+            label: 'Compliance with child privacy regulations',
+            yesValue: 10,
+            noValue: 4,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                </label>
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            ageVerification: (() => {
+              const value = document.querySelector('input[name="ageVerification"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            childProtection: (() => {
+              const value = document.querySelector('input[name="childProtection"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            parentalConsent: (() => {
+              const value = document.querySelector('input[name="parentalConsent"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            childPrivacyCompliance: (() => {
+              const value = document.querySelector('input[name="childPrivacyCompliance"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+
+          featureModalSelections[featureId] = answers;
+          const computed = getAgeAppropriatePrivacyScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          setScoreBadgeLevel(scoreValue, computed);
+        };
+
+        document.querySelectorAll('input[name="ageVerification"], input[name="childProtection"], input[name="parentalConsent"], input[name="childPrivacyCompliance"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+
+        updateComputedValue();
+      }
+
+      function getDataBackupsScore(selection) {
+        const scoring = [
+          { key: 'sensitiveDataInBackups', yes: 2, no: 10, na: 10 },
+          { key: 'backupUnencrypted', yes: 2, no: 10, na: 10 },
+          { key: 'userControlBackups', yes: 10, no: 8, na: 10 },
+          { key: 'dataMinimization', yes: 10, no: 8, na: 10 },
+          { key: 'cloudBackup', yes: 4, no: 10, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderDataBackupQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          sensitiveDataInBackups: false,
+          backupUnencrypted: false,
+          userControlBackups: false,
+          dataMinimization: false,
+          cloudBackup: false
+        };
+
+        const questions = [
+          {
+            key: 'sensitiveDataInBackups',
+            label: 'Sensitive health data/credentials in backups',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'backupUnencrypted',
+            label: 'Backup data unencrypted',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'userControlBackups',
+            label: 'User control over backups',
+            yesValue: 10,
+            noValue: 8,
+            naValue: 10
+          },
+          {
+            key: 'dataMinimization',
+            label: 'Data minimization (only essential data backed up)',
+            yesValue: 10,
+            noValue: 8,
+            naValue: 10
+          },
+          {
+            key: 'cloudBackup',
+            label: 'Is the data backup up on cloud?',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                </label>
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            sensitiveDataInBackups: document.querySelector('input[name="sensitiveDataInBackups"]:checked')?.value === 'yes',
+            backupUnencrypted: document.querySelector('input[name="backupUnencrypted"]:checked')?.value === 'yes',
+            userControlBackups: (() => {
+              const value = document.querySelector('input[name="userControlBackups"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            dataMinimization: (() => {
+              const value = document.querySelector('input[name="dataMinimization"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            cloudBackup: document.querySelector('input[name="cloudBackup"]:checked')?.value === 'yes'
+          };
+
+          featureModalSelections[featureId] = answers;
+          const computed = getDataBackupsScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="sensitiveDataInBackups"], input[name="backupUnencrypted"], input[name="userControlBackups"], input[name="dataMinimization"], input[name="cloudBackup"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+
+        updateComputedValue();
+      }
+
+      function getPiiLeakageLogsCrashReportsScore(selection) {
+        const scoring = [
+          { key: 'fullProfileVisible', yes: 2, no: 10, na: 10 },
+          { key: 'partialPiiInLogs', yes: 6, no: 10, na: 10 },
+          { key: 'anonymizedCrashReports', yes: 10, no: 8, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderPiiLeakageQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          fullProfileVisible: false,
+          partialPiiInLogs: false,
+          anonymizedCrashReports: true
+        };
+
+        const questions = [
+          {
+            key: 'fullProfileVisible',
+            label: 'Full patient profile visible in crash logs',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'partialPiiInLogs',
+            label: 'Partial PII data like email id added to logs',
+            yesValue: 6,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'anonymizedCrashReports',
+            label: 'Crash reports contain only stack traces and anonymized context',
+            yesValue: 10,
+            noValue: 8,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                </label>
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            fullProfileVisible: document.querySelector('input[name="fullProfileVisible"]:checked')?.value === 'yes',
+            partialPiiInLogs: document.querySelector('input[name="partialPiiInLogs"]:checked')?.value === 'yes',
+            anonymizedCrashReports: (() => {
+              const value = document.querySelector('input[name="anonymizedCrashReports"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+
+          featureModalSelections[featureId] = answers;
+          const computed = getPiiLeakageLogsCrashReportsScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="fullProfileVisible"], input[name="partialPiiInLogs"], input[name="anonymizedCrashReports"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+
+        updateComputedValue();
+      }
+
+      function getPurgeAccountScore(selection) {
+        const scoring = [
+          { key: 'deletionRemovesAccountOnly', yes: 2, no: 10, na: 10 },
+          { key: 'noPropagationThirdParties', yes: 2, no: 10, na: 10 },
+          { key: 'noDeletionCapability', yes: 2, no: 10, na: 10 },
+          { key: 'mlTrainingDataNotPurged', yes: 4, no: 10, na: 10 },
+          { key: 'backupsRetainDataIndefinitely', yes: 4, no: 10, na: 10 },
+          { key: 'logsRetainPiiPastDeletion', yes: 4, no: 10, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderPurgeAccountQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          deletionRemovesAccountOnly: false,
+          noPropagationThirdParties: false,
+          noDeletionCapability: false,
+          mlTrainingDataNotPurged: false,
+          backupsRetainDataIndefinitely: false,
+          logsRetainPiiPastDeletion: false
+        };
+
+        const questions = [
+          {
+            key: 'deletionRemovesAccountOnly',
+            label: 'Deletion removes account record only; health data survives in derived stores',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'noPropagationThirdParties',
+            label: 'No propagation of deletion to third parties (SDKs, ad nets, cloud ML)',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'noDeletionCapability',
+            label: 'No deletion capability at all, or account can only be "deactivated"',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'mlTrainingDataNotPurged',
+            label: 'Data already used in ML training corpus is not purged / not purgeable',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'backupsRetainDataIndefinitely',
+            label: 'Server-side backups/snapshots retain data indefinitely or undisclosed',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'logsRetainPiiPastDeletion',
+            label: 'Logs, crash reports, audit trails retain PII past deletion',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                </label>
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            deletionRemovesAccountOnly: document.querySelector('input[name="deletionRemovesAccountOnly"]:checked')?.value === 'yes',
+            noPropagationThirdParties: document.querySelector('input[name="noPropagationThirdParties"]:checked')?.value === 'yes',
+            noDeletionCapability: document.querySelector('input[name="noDeletionCapability"]:checked')?.value === 'yes',
+            mlTrainingDataNotPurged: (() => {
+              const value = document.querySelector('input[name="mlTrainingDataNotPurged"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            backupsRetainDataIndefinitely: (() => {
+              const value = document.querySelector('input[name="backupsRetainDataIndefinitely"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            logsRetainPiiPastDeletion: (() => {
+              const value = document.querySelector('input[name="logsRetainPiiPastDeletion"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+
+          featureModalSelections[featureId] = answers;
+          const computed = getPurgeAccountScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="deletionRemovesAccountOnly"], input[name="noPropagationThirdParties"], input[name="noDeletionCapability"], input[name="mlTrainingDataNotPurged"], input[name="backupsRetainDataIndefinitely"], input[name="logsRetainPiiPastDeletion"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+
+        updateComputedValue();
+      }
+
+      function getEmbeddedSdksHealthDataScore(selection) {
+        const scoring = [
+          { key: 'tier1HealthData', yes: 2, no: 10, na: 10 },
+          { key: 'dataBeforeConsent', yes: 2, no: 10, na: 10 },
+          { key: 'consentNotPropagated', yes: 4, no: 10, na: 10 },
+          { key: 'conditionContextLeaked', yes: 4, no: 10, na: 10 },
+          { key: 'autonomousCollection', yes: 4, no: 10, na: 10 },
+          { key: 'dataRetentionAfterDeletion', yes: 4, no: 10, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderEmbeddedSdksHealthDataQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          tier1HealthData: false,
+          dataBeforeConsent: false,
+          consentNotPropagated: false,
+          conditionContextLeaked: false,
+          autonomousCollection: false,
+          dataRetentionAfterDeletion: false
+        };
+
+        const questions = [
+          {
+            key: 'tier1HealthData',
+            label: 'Tier 1–3 health data transmitted to ad/analytics SDK',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'dataBeforeConsent',
+            label: 'Data transmitted before the consent gate / on app open',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'consentNotPropagated',
+            label: 'Consent signal not propagated to SDK (CMP present but SDK ignores it)',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'conditionContextLeaked',
+            label: 'Condition context leaked via screen/event names',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'autonomousCollection',
+            label: 'SDK performs autonomous collection beyond host-app scope',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'dataRetentionAfterDeletion',
+            label: 'SDK retains data after user deletion (no deletion propagation)',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                </label>
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            tier1HealthData: document.querySelector('input[name="tier1HealthData"]:checked')?.value === 'yes',
+            dataBeforeConsent: document.querySelector('input[name="dataBeforeConsent"]:checked')?.value === 'yes',
+            consentNotPropagated: (() => {
+              const value = document.querySelector('input[name="consentNotPropagated"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            conditionContextLeaked: (() => {
+              const value = document.querySelector('input[name="conditionContextLeaked"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            autonomousCollection: (() => {
+              const value = document.querySelector('input[name="autonomousCollection"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            dataRetentionAfterDeletion: (() => {
+              const value = document.querySelector('input[name="dataRetentionAfterDeletion"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+
+          featureModalSelections[featureId] = answers;
+          const computed = getEmbeddedSdksHealthDataScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="tier1HealthData"], input[name="dataBeforeConsent"], input[name="consentNotPropagated"], input[name="conditionContextLeaked"], input[name="autonomousCollection"], input[name="dataRetentionAfterDeletion"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+
+        updateComputedValue();
+      }
+
+      function getPiiUrlQueryParamsScore(selection) {
+        const scoring = [
+          { key: 'healthAttributeThirdParty', yes: 2, no: 10, na: 10 },
+          { key: 'directIdentifierUrlLogs', yes: 4, no: 10, na: 10 },
+          { key: 'piiPersistedBrowserHistory', yes: 6, no: 10, na: 10 },
+          { key: 'authTokenInUrl', yes: 2, no: 10, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderPiiUrlQueryParamsQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          healthAttributeThirdParty: false,
+          directIdentifierUrlLogs: false,
+          piiPersistedBrowserHistory: false,
+          authTokenInUrl: false
+        };
+
+        const questions = [
+          {
+            key: 'healthAttributeThirdParty',
+            label: 'Health attribute/PHI in query string of a request to a third-party origin',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'directIdentifierUrlLogs',
+            label: 'Direct identifier in URL captured by server/CDN/WAF/proxy access logs',
+            yesValue: 4,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'piiPersistedBrowserHistory',
+            label: 'PII persisted in browser history / autocomplete / shared links',
+            yesValue: 6,
+            noValue: 10,
+            naValue: 10
+          },
+          {
+            key: 'authTokenInUrl',
+            label: 'Session token, auth token, or password-reset token in URL',
+            yesValue: 2,
+            noValue: 10,
+            naValue: 10
+          }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions
+          .map((question) => {
+            const selectedYes = selection[question.key] === true;
+            const selectedNo = selection[question.key] === false;
+            const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+            return `
+              <li>
+                <strong>${question.label}</strong><br />
+                <label>
+                  <input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})
+                </label>
+              </li>
+            `;
+          })
+          .join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            healthAttributeThirdParty: (() => { const v = document.querySelector('input[name="healthAttributeThirdParty"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            directIdentifierUrlLogs: (() => { const v = document.querySelector('input[name="directIdentifierUrlLogs"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            piiPersistedBrowserHistory: (() => { const v = document.querySelector('input[name="piiPersistedBrowserHistory"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            authTokenInUrl: (() => { const v = document.querySelector('input[name="authTokenInUrl"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          const computed = getPiiUrlQueryParamsScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="healthAttributeThirdParty"], input[name="directIdentifierUrlLogs"], input[name="piiPersistedBrowserHistory"], input[name="authTokenInUrl"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+        updateComputedValue();
+      }
+
+      function getDataMinimizationPermissionOverreachScore(selection) {
+        const scoring = [
+          { key: 'readStorageAccess', yes: 3, no: 10, na: 10 },
+          { key: 'writeStorageAccess', yes: 3, no: 10, na: 10 },
+          { key: 'cameraAccess', yes: 4, no: 10, na: 10 },
+          { key: 'microphoneAccess', yes: 4, no: 10, na: 10 },
+          { key: 'rootBypass', yes: 2, no: 10, na: 10 },
+          { key: 'sslUnpinning', yes: 2, no: 10, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderDataMinimizationPermissionOverreachQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          readStorageAccess: false,
+          writeStorageAccess: false,
+          cameraAccess: false,
+          microphoneAccess: false,
+          rootBypass: false,
+          sslUnpinning: false
+        };
+
+        const questions = [
+          { key: 'readStorageAccess', label: 'Read access to unneeded local storage/media', yesValue: 3, noValue: 10, naValue: 10 },
+          { key: 'writeStorageAccess', label: 'Write access to storage without explicit need', yesValue: 3, noValue: 10, naValue: 10 },
+          { key: 'cameraAccess', label: 'Camera access beyond explicit user action', yesValue: 4, noValue: 10, naValue: 10 },
+          { key: 'microphoneAccess', label: 'Microphone access beyond explicit user action', yesValue: 4, noValue: 10, naValue: 10 },
+          { key: 'rootBypass', label: 'Root/Jailbreak bypass or local privilege escalation', yesValue: 2, noValue: 10, naValue: 10 },
+          { key: 'sslUnpinning', label: 'SSL pinning or certificate verification bypass', yesValue: 2, noValue: 10, naValue: 10 }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions.map((question) => {
+          const selectedYes = selection[question.key] === true;
+          const selectedNo = selection[question.key] === false;
+          const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+          return `<li><strong>${question.label}</strong><br /><label><input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})</label></li>`;
+        }).join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            readStorageAccess: (() => { const v = document.querySelector('input[name="readStorageAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            writeStorageAccess: (() => { const v = document.querySelector('input[name="writeStorageAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            cameraAccess: (() => { const v = document.querySelector('input[name="cameraAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            microphoneAccess: (() => { const v = document.querySelector('input[name="microphoneAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            rootBypass: (() => { const v = document.querySelector('input[name="rootBypass"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            sslUnpinning: (() => { const v = document.querySelector('input[name="sslUnpinning"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          const computed = getDataMinimizationPermissionOverreachScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="readStorageAccess"], input[name="writeStorageAccess"], input[name="cameraAccess"], input[name="microphoneAccess"], input[name="rootBypass"], input[name="sslUnpinning"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+        updateComputedValue();
+      }
+
+      function getDataSharingConsentScore(selection) {
+        const scoring = [
+          { key: 'formFields', yes: 8, no: 4, na: 10 },
+          { key: 'gdprCcpaOptIn', yes: 10, no: 4, na: 10 },
+          { key: 'policyClarity', yes: 8, no: 4, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderDataSharingConsentQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          formFields: false,
+          gdprCcpaOptIn: false,
+          policyClarity: false
+        };
+
+        const questions = [
+          { key: 'formFields', label: 'Data sharing and consent form fields are minimized and explicit', yesValue: 8, noValue: 4, naValue: 10 },
+          { key: 'gdprCcpaOptIn', label: 'Consent mechanisms meet GDPR/CCPA-style opt-in requirements', yesValue: 10, noValue: 4, naValue: 10 },
+          { key: 'policyClarity', label: 'Policies clearly explain data sharing and user controls', yesValue: 8, noValue: 4, naValue: 10 }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions.map((question) => {
+          const selectedYes = selection[question.key] === true;
+          const selectedNo = selection[question.key] === false;
+          const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+          return `<li><strong>${question.label}</strong><br /><label><input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})</label></li>`;
+        }).join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            formFields: (() => { const v = document.querySelector('input[name="formFields"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            gdprCcpaOptIn: (() => { const v = document.querySelector('input[name="gdprCcpaOptIn"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            policyClarity: (() => { const v = document.querySelector('input[name="policyClarity"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          const computed = getDataSharingConsentScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="formFields"], input[name="gdprCcpaOptIn"], input[name="policyClarity"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+        updateComputedValue();
+      }
+
+      function getDataEncryptionScore(selection) {
+        const scoring = [
+          { key: 'encryptionAtRest', yes: 10, no: 4, na: 10 },
+          { key: 'encryptionInTransit', yes: 10, no: 4, na: 10 },
+          { key: 'pkiCertValidity', yes: 10, no: 4, na: 10 }
+        ];
+
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderDataEncryptionQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          encryptionAtRest: false,
+          encryptionInTransit: false,
+          pkiCertValidity: false
+        };
+
+        const questions = [
+          { key: 'encryptionAtRest', label: 'Data encryption at rest', yesValue: 10, noValue: 4, naValue: 10 },
+          { key: 'encryptionInTransit', label: 'Data encryption in transit', yesValue: 10, noValue: 4, naValue: 10 },
+          { key: 'pkiCertValidity', label: 'Certificate validity and PKI hygiene', yesValue: 10, noValue: 4, naValue: 10 }
+        ];
+
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        rubricList.innerHTML = questions.map((question) => {
+          const selectedYes = selection[question.key] === true;
+          const selectedNo = selection[question.key] === false;
+          const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+          return `<li><strong>${question.label}</strong><br /><label><input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})</label></li>`;
+        }).join('');
+
+        const updateComputedValue = () => {
+          const answers = {
+            encryptionAtRest: (() => { const v = document.querySelector('input[name="encryptionAtRest"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            encryptionInTransit: (() => { const v = document.querySelector('input[name="encryptionInTransit"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            pkiCertValidity: (() => { const v = document.querySelector('input[name="pkiCertValidity"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          const computed = getDataEncryptionScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+
+        document.querySelectorAll('input[name="encryptionAtRest"], input[name="encryptionInTransit"], input[name="pkiCertValidity"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+        updateComputedValue();
+      }
+
+      function getAccountSharingFeaturesScore(selection) {
+        const scoring = [
+          { key: 'crossSharingFamilyData', yes: 6, no: 10, na: 10 },
+          { key: 'repudiationCrossAccount', yes: 4, no: 10, na: 10 }
+        ];
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderAccountSharingFeaturesQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          crossSharingFamilyData: false,
+          repudiationCrossAccount: false
+        };
+        const questions = [
+          { key: 'crossSharingFamilyData', label: 'Cross sharing info (same family sharing data in a family medical plan)', yesValue: 6, noValue: 10, naValue: 10 },
+          { key: 'repudiationCrossAccount', label: 'Repudiation - cross account sharing features edit/delete/write', yesValue: 4, noValue: 10, naValue: 10 }
+        ];
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+        rubricList.innerHTML = questions.map((question) => {
+          const selectedYes = selection[question.key] === true;
+          const selectedNo = selection[question.key] === false;
+          const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+          return `<li><strong>${question.label}</strong><br /><label><input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})</label></li>`;
+        }).join('');
+        const updateComputedValue = () => {
+          const answers = {
+            crossSharingFamilyData: (() => { const v = document.querySelector('input[name="crossSharingFamilyData"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            repudiationCrossAccount: (() => { const v = document.querySelector('input[name="repudiationCrossAccount"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          const computed = getAccountSharingFeaturesScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+        document.querySelectorAll('input[name="crossSharingFamilyData"], input[name="repudiationCrossAccount"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+        updateComputedValue();
+      }
+
+      function getFirmwareUpdateDeviceScore(selection) {
+        const scoring = [
+          { key: 'macAddressExposure', yes: 6, no: 10, na: 10 },
+          { key: 'firmwareCodeSigning', yes: 4, no: 10, na: 10 },
+          { key: 'forcedUpdateReconsent', yes: 6, no: 10, na: 10 },
+          { key: 'changelogTransparency', yes: 8, no: 10, na: 10 }
+        ];
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderFirmwareUpdateDeviceQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          macAddressExposure: false,
+          firmwareCodeSigning: false,
+          forcedUpdateReconsent: false,
+          changelogTransparency: false
+        };
+        const questions = [
+          { key: 'macAddressExposure', label: 'MAC address exposure / ARP poisoning', yesValue: 6, noValue: 10, naValue: 10 },
+          { key: 'firmwareCodeSigning', label: 'Firmware code signing and supply chain integrity', yesValue: 4, noValue: 10, naValue: 10 },
+          { key: 'forcedUpdateReconsent', label: 'Forced update re-consent for data collection changes', yesValue: 6, noValue: 10, naValue: 10 },
+          { key: 'changelogTransparency', label: 'Changelog transparency', yesValue: 8, noValue: 10, naValue: 10 }
+        ];
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+        rubricList.innerHTML = questions.map((question) => {
+          const selectedYes = selection[question.key] === true;
+          const selectedNo = selection[question.key] === false;
+          const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+          return `<li><strong>${question.label}</strong><br /><label><input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})</label></li>`;
+        }).join('');
+        const updateComputedValue = () => {
+          const answers = {
+            macAddressExposure: (() => { const v = document.querySelector('input[name="macAddressExposure"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            firmwareCodeSigning: (() => { const v = document.querySelector('input[name="firmwareCodeSigning"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            forcedUpdateReconsent: (() => { const v = document.querySelector('input[name="forcedUpdateReconsent"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            changelogTransparency: (() => { const v = document.querySelector('input[name="changelogTransparency"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          const computed = getFirmwareUpdateDeviceScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+        document.querySelectorAll('input[name="macAddressExposure"], input[name="firmwareCodeSigning"], input[name="forcedUpdateReconsent"], input[name="changelogTransparency"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+        updateComputedValue();
+      }
+
+      function getBreachNotificationTimeWindowScore(selection) {
+        const scoring = [
+          { key: 'breachTimeWindowMentioned', yes: 10, no: 4, na: 10 }
+        ];
+        const values = scoring.map((item) => {
+          const value = selection[item.key];
+          if (value === true) return item.yes;
+          if (value === false) return item.no;
+          return item.na ?? item.no;
+        });
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return Math.round(average);
+      }
+
+      function renderBreachNotificationTimeWindowQuestions(featureId) {
+        const selection = featureModalSelections[featureId] || {
+          breachTimeWindowMentioned: false
+        };
+        const questions = [
+          { key: 'breachTimeWindowMentioned', label: 'Is there a breach time window mentioned?', yesValue: 10, noValue: 4, naValue: 10 }
+        ];
+        const rubricList = document.getElementById('modalRubricList');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+        rubricList.innerHTML = questions.map((question) => {
+          const selectedYes = selection[question.key] === true;
+          const selectedNo = selection[question.key] === false;
+          const selectedNa = selection[question.key] === null || selection[question.key] === undefined;
+          return `<li><strong>${question.label}</strong><br /><label><input type="radio" name="${question.key}" value="yes" ${selectedYes ? 'checked' : ''} /> Yes (${question.yesValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="no" ${selectedNo ? 'checked' : ''} /> No (${question.noValue})</label>&nbsp;&nbsp;<label><input type="radio" name="${question.key}" value="na" ${selectedNa ? 'checked' : ''} /> N/A (${question.naValue})</label></li>`;
+        }).join('');
+        const updateComputedValue = () => {
+          const answers = {
+            breachTimeWindowMentioned: (() => { const v = document.querySelector('input[name="breachTimeWindowMentioned"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          const computed = getBreachNotificationTimeWindowScore(answers);
+          scoreInput.value = computed;
+          scoreInput.disabled = true;
+          scoreValue.textContent = computed;
+        };
+        document.querySelectorAll('input[name="breachTimeWindowMentioned"]').forEach((radio) => {
+          radio.addEventListener('change', updateComputedValue);
+        });
+        updateComputedValue();
+      }
+
+      function isFeatureApplicable(featureId) {
+        const value = featureApplicability[featureId];
+        return value !== false && value !== 'no' && value !== null && value !== undefined;
+      }
+
+      function renderFeatures() {
+        const grid = document.getElementById('featureGrid');
+        grid.innerHTML = '';
+
+        Object.keys(featureDefinitions).forEach((featureId) => {
+          const detail = featureDefinitions[featureId];
+          const isApplicable = isFeatureApplicable(featureId);
+          const scoreValue = isApplicable ? featureScores[featureId] : 10;
+          const scoreLevel = getScoreLevel(scoreValue);
+          const card = document.createElement('div');
+          card.className = 'feature-card';
+          card.innerHTML = `
+            <div class="feature-header">
+              <div>
+                <label>${detail.label}</label>
+                <small>${detail.description}</small>
+              </div>
+              <span class="feature-score" data-level="${scoreLevel}">${scoreValue}</span>
+            </div>
+            <div class="feature-meta">
+              <label for="applicable-${featureId}">Applicable?</label>
+              <select id="applicable-${featureId}" class="applicability-select" data-feature-id="${featureId}">
+                <option value="yes" ${isApplicable ? 'selected' : ''}>Yes</option>
+                <option value="no" ${!isApplicable ? 'selected' : ''}>No</option>
+              </select>
+            </div>
+            <button class="feature-button" type="button" data-feature-id="${featureId}" ${isApplicable ? '' : 'disabled'}>Review rubric</button>
+          `;
+          const button = card.querySelector('.feature-button');
+          button.disabled = !isApplicable;
+          grid.appendChild(card);
+        });
+
+        document.querySelectorAll('.applicability-select').forEach((select) => {
+          select.addEventListener('change', (event) => {
+            const { featureId } = event.target.dataset;
+            featureApplicability[featureId] = event.target.value === 'yes';
+            renderFeatures();
+            updateUI();
+            persistCurrentApp();
+          });
+        });
+
+        document.querySelectorAll('.feature-button').forEach((button) => {
+          button.addEventListener('click', () => {
+            if (!isFeatureApplicable(button.dataset.featureId)) return;
+            openFeatureModal(button.dataset.featureId);
+          });
+        });
+      }
+
+      function openFeatureModal(featureId) {
+        if (!isFeatureApplicable(featureId)) return;
+
+        const detail = featureDefinitions[featureId];
+        const modal = document.getElementById('featureModal');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+        const rubricList = document.getElementById('modalRubricList');
+        const modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.textContent = detail.label;
+
+        if (featureId === 'pushNotificationsScreens') {
+          console.log('Opening pushNotificationsScreens modal');
+          renderPushNotificationQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          console.log('inert removed, inert attr now:', modal.hasAttribute('inert'));
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'piiLeakageLogsCrashReports') {
+          renderPiiLeakageQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'dataBackups') {
+          renderDataBackupQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'ageAppropriatePrivacy') {
+          renderAgeAppropriatePrivacyQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'onDeviceVsCloudPrediction') {
+          renderOnDeviceVsCloudPredictionQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'accountPurgeSharedAccounts') {
+          renderPurgeAccountQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'embeddedSdksHealthData') {
+          renderEmbeddedSdksHealthDataQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'piiUrlQueryParams') {
+          renderPiiUrlQueryParamsQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'dataMinimizationPermissionOverreach') {
+          renderDataMinimizationPermissionOverreachQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'dataSharingConsent') {
+          renderDataSharingConsentQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'dataEncryption') {
+          renderDataEncryptionQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'accountSharingFeatures') {
+          renderAccountSharingFeaturesQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'firmwareUpdateDevice') {
+          renderFirmwareUpdateDeviceQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        if (featureId === 'breachNotificationTimeWindow') {
+          renderBreachNotificationTimeWindowQuestions(featureId);
+          scoreInput.disabled = true;
+          modal.dataset.featureId = featureId;
+          modal.classList.add('open');
+          modal.removeAttribute('inert');
+          modal.setAttribute('aria-hidden', 'false');
+          modal.style.display = 'flex';
+          return;
+        }
+
+        rubricList.innerHTML = detail.rubric
+          .map((item) => `<li><strong>${item.title}:</strong> ${item.text}</li>`)
+          .join('');
+
+        scoreInput.disabled = false;
+        scoreInput.value = featureScores[featureId];
+        setScoreBadgeLevel(scoreValue, featureScores[featureId]);
+        scoreInput.oninput = () => {
+          setScoreBadgeLevel(scoreValue, scoreInput.value);
+        };
+
+        modal.dataset.featureId = featureId;
+        modal.classList.add('open');
+        modal.removeAttribute('inert');
+        modal.setAttribute('aria-hidden', 'false');
+        modal.style.display = 'flex';
+      }
+
+      function closeFeatureModal() {
+        const modal = document.getElementById('featureModal');
+        modal.classList.remove('open');
+        modal.setAttribute('inert', '');
+        modal.setAttribute('aria-hidden', 'true');
+        modal.style.display = 'none';
+      }
+
+      function computeScore() {
+        const total = Object.keys(featureDefinitions).reduce((sum, id) => sum + (featureApplicability[id] === false ? 10 : featureScores[id]), 0);
+        const weightedTotal = Object.keys(featureDefinitions).reduce((sum, id) => sum + ((featureApplicability[id] === false ? 10 : featureScores[id]) * weights[id]), 0);
+        const totalWeight = Object.keys(featureDefinitions).reduce((sum, id) => sum + weights[id], 0);
+        const meanScore = total / Object.keys(featureDefinitions).length;
+        const weightedAverage = weightedTotal / totalWeight;
+        const finalScore = Math.round(((meanScore + weightedAverage) / 2) * 10);
+        return finalScore;
+      }
+
+      function getRating(score) {
+        if (score >= 85) return { tag: 'Excellent', risk: 'Low', priority: 'Maintain posture', assessment: 'The app evaluated is highly mature, with strong governance and strong protection across the data lifecycle.' };
+        if (score >= 70) return { tag: 'Strong', risk: 'Low', priority: 'Improve retention', assessment: 'The app evaluated demonstrates solid privacy hygiene with good access controls, encryption, and operational monitoring.' };
+        if (score >= 55) return { tag: 'Moderate', risk: 'Moderate', priority: 'Tighten controls', assessment: 'The app evaluated has acceptable privacy maturity, but stronger controls around storage, consent, and third-party handling would reduce exposure.' };
+        if (score >= 35) return { tag: 'Needs work', risk: 'High', priority: 'Prioritize risk reduction', assessment: 'The app evaluated shows significant gaps that increase privacy risk. Consider addressing retention, access, and transparency practices first.' };
+        return { tag: 'Critical', risk: 'Critical', priority: 'Immediate action', assessment: 'The app evaluated requires urgent remediation across access, consent, and data handling practices.' };
+      }
+
+      function updateUI() {
+        const score = computeScore();
+        const rating = getRating(score);
+
+        const meterFill = document.getElementById('meterFill');
+        const scoreValue = document.getElementById('scoreValue');
+        const scoreTag = document.getElementById('scoreTag');
+        const assessmentText = document.getElementById('assessmentText');
+        const weightedScore = document.getElementById('weightedScore');
+        const riskLevel = document.getElementById('riskLevel');
+        const priorityLevel = document.getElementById('priorityLevel');
+
+        scoreValue.textContent = score;
+        scoreTag.textContent = rating.tag;
+        scoreTag.style.background = getTagColor(score);
+        scoreTag.style.color = score >= 70 ? '#10213a' : '#ffffff';
+        assessmentText.textContent = rating.assessment;
+        weightedScore.textContent = `${score}/100`;
+        riskLevel.textContent = rating.risk;
+        priorityLevel.textContent = rating.priority;
+        meterFill.style.width = `${score}%`;
+      }
+
+      function getTagColor(score) {
+        if (score >= 85) return 'rgba(20,184,166,0.18)';
+        if (score >= 70) return 'rgba(84, 201, 143, 0.18)';
+        if (score >= 55) return 'rgba(245,158,11,0.20)';
+        if (score >= 35) return 'rgba(249,115,22,0.18)';
+        return 'rgba(239,68,68,0.18)';
+      }
+
+      function getHistoryEntries() {
+        try {
+          return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function updateHistoryList() {
+        const historyList = document.getElementById('evaluationHistoryList');
+        if (!historyList) return;
+
+        const history = getHistoryEntries();
+        if (!history.length) {
+          historyList.innerHTML = '<li class="empty-state">No evaluations yet</li>';
+          renderPortfolioChart();
+          return;
+        }
+
+        // Group by app name to show all evaluators
+        const appGroups = {};
+        history.forEach((entry) => {
+          if (!appGroups[entry.appName]) {
+            appGroups[entry.appName] = [];
+          }
+          appGroups[entry.appName].push(entry);
+        });
+
+        historyList.innerHTML = Object.entries(appGroups)
+          .map(([appName, evaluations]) => {
+            // Entries are already most-recent-first within a group because
+            // persistCurrentApp() unshifts; sort defensively just in case.
+            const sorted = [...evaluations].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            const latestEval = sorted[0];
+            const hasMultiple = sorted.length > 1;
+            
+            // Calculate average score if multiple evaluations, otherwise use latest
+            let displayScore;
+            if (hasMultiple) {
+              const avgScore = sorted.reduce((sum, e) => sum + e.score, 0) / sorted.length;
+              displayScore = Math.round(avgScore * 10) / 10; // Round to 1 decimal place
+            } else {
+              displayScore = latestEval.score;
+            }
+            
+            const scoreColor = getScoreLevelColor(displayScore);
+            const visibleEvaluators = sorted.slice(0, 6);
+            const extraCount = sorted.length - visibleEvaluators.length;
+
+            // Each evaluator's badge is colored by THEIR OWN score for this app,
+            // not a flat neutral color, and shows that score inline.
+            const allEvaluatorsList = visibleEvaluators.map((e) => {
+              const badgeColor = getScoreLevelColor(e.score);
+              return `<span class="evaluator-badge" data-app-name="${escapeHtml(appName)}" data-user-name="${escapeHtml(e.userName || '')}" style="display: inline-flex; align-items: center; gap: 4px; background: ${badgeColor}; color: #fff; padding: 2px 8px 2px 10px; border-radius: 12px; font-size: 11px; margin-right: 4px; margin-bottom: 4px; cursor: pointer; font-weight: 600;">${escapeHtml(e.userName || 'Unknown')}<span style="background: rgba(255,255,255,0.3); border-radius: 8px; padding: 1px 6px;">${e.score}</span></span>`;
+            }).join('') + (extraCount > 0 ? `<span style="display: inline-block; color: #999; font-size: 11px; margin-left: 2px;">+${extraCount} more</span>` : '');
+
+            return `
+              <li class="history-item" data-app-name="${escapeHtml(appName)}" data-single-user="${hasMultiple ? '' : escapeHtml(latestEval.userName || '')}" style="margin-bottom: 12px; padding: 14px; border-left: 5px solid ${scoreColor}; background: linear-gradient(to right, rgba(255,255,255,0) 0%, #f9f9f9 20%); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <div>
+                    <strong style="font-size: 15px;">${escapeHtml(appName)}</strong>
+                    ${hasMultiple ? `<div style="font-size: 11px; color: #999; margin-top: 4px;">${sorted.length} evaluations</div>` : ''}
+                  </div>
+                  <div style="background: ${scoreColor}; color: white; padding: 6px 12px; border-radius: 14px; font-weight: bold; font-size: 14px; text-align: center;">${hasMultiple ? `Avg: ${displayScore}` : displayScore}</div>
+                </div>
+                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Latest: <strong>${escapeHtml(latestEval.userName || 'Unknown')}</strong></div>
+                ${hasMultiple ? `
+                  <div style="margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 11px; color: #666; margin-bottom: 4px;">Evaluated by (color = their score):</div>
+                    ${allEvaluatorsList}
+                  </div>
+                  <div style="margin-top: 8px; font-size: 12px; color: #0066cc;"><a href="javascript:void(0)" class="view-all-link" data-app-name="${escapeHtml(appName)}">📊 View all ${sorted.length} evaluations</a></div>
+                ` : ''}
+              </li>
+            `;
+          })
+          .join('');
+
+        // Clicking an individual evaluator badge loads that exact person's evaluation.
+        document.querySelectorAll('.evaluator-badge').forEach((badge) => {
+          badge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            loadAppEvaluation(badge.dataset.appName, badge.dataset.userName);
+          });
+        });
+
+        // Clicking "View all" opens the comparison modal.
+        document.querySelectorAll('.view-all-link').forEach((link) => {
+          link.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showAppComparison(link.dataset.appName);
+          });
+        });
+
+        // Clicking the card itself: if only one evaluator, load it directly;
+        // if multiple, open the comparison modal instead of guessing which one.
+        document.querySelectorAll('.history-item').forEach((item) => {
+          item.addEventListener('click', (e) => {
+            if (e.target.closest('.evaluator-badge') || e.target.closest('.view-all-link')) return;
+            const appName = item.dataset.appName;
+            const singleUser = item.dataset.singleUser;
+            if (singleUser) {
+              loadAppEvaluation(appName, singleUser);
+            } else {
+              showAppComparison(appName);
+            }
+          });
+        });
+      }
+
+      function getScoreLevelColor(score) {
+        const value = Number(score);
+        // Local history stores computeScore() on a 0-100 scale; shared/cloud
+        // evaluations store calculateWeightedScore() on a 0-10 scale. Normalize
+        // to 0-10 so the same thresholds classify both correctly.
+        const normalized = value > 10 ? value / 10 : value;
+        if (normalized >= 8) return '#27ae60'; // Green - High (strong privacy posture)
+        if (normalized >= 5) return '#f39c12'; // Orange - Moderate
+        return '#e74c3c'; // Red - Low (needs attention)
+      }
+
+      function showAppComparison(appName) {
+        const history = getHistoryEntries();
+        const evaluations = history
+          .filter((item) => item.appName.toLowerCase() === appName.toLowerCase())
+          .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+        if (!evaluations.length) {
+          alert('No evaluations found for this app');
+          return;
+        }
+
+        // Create a comparison modal
+        const modal = document.createElement('div');
+        modal.className = 'modal-backdrop';
+        modal.id = 'comparisonModal';
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        
+        const comparisonTable = evaluations
+          .map((eval, idx) => {
+            const scoreColor = getScoreLevelColor(eval.score);
+            return `
+              <div style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; hover: background: #f5f5f5;" onclick="loadAppEvaluation('${escapeHtml(eval.appName)}', '${escapeHtml(eval.userName || '')}'); document.getElementById('comparisonModal').remove();">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <strong>${escapeHtml(eval.userName || 'Unknown')}</strong><br/>
+                    <small style="color: #999;">${new Date(eval.updatedAt).toLocaleDateString()}</small>
+                  </div>
+                  <div style="background: ${scoreColor}; color: white; padding: 8px 14px; border-radius: 12px; font-weight: bold;">${eval.score}</div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+
+        modal.innerHTML = `
+          <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+              <h2>${escapeHtml(appName)} - Evaluations (${evaluations.length})</h2>
+              <button class="close-button" type="button" aria-label="Close" onclick="document.getElementById('comparisonModal').remove();">×</button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+              ${comparisonTable}
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="secondary-btn" onclick="document.getElementById('comparisonModal').remove();">Close</button>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.remove();
+          }
+        });
+      }
+
+      function loadAppEvaluation(appName, userName) {
+        currentAppName = appName;
+        const saved = localStorage.getItem(getAppStorageKey(appName, userName));
+
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            currentUserName = parsed.userName || userName || 'Unknown';
+            featureScores = parsed.featureScores || { ...defaultFeatureScores };
+            featureApplicability = parsed.featureApplicability || { ...defaultFeatureApplicability };
+          } catch (error) {
+            currentUserName = userName || 'Unknown';
+            featureScores = { ...defaultFeatureScores };
+            featureApplicability = { ...defaultFeatureApplicability };
+          }
+        } else {
+          currentUserName = userName || 'Unknown';
+          featureScores = { ...defaultFeatureScores };
+          featureApplicability = { ...defaultFeatureApplicability };
+        }
+
+        document.getElementById('userNameInput').value = currentUserName;
+
+        document.getElementById('appNameInput').value = appName;
+        document.getElementById('currentAppNameTitle').textContent = appName;
+        document.getElementById('currentAppNameBadge').textContent = appName;
+        document.getElementById('appStartScreen').style.display = 'none';
+        document.getElementById('evaluationScreen').style.display = 'block';
+
+        renderFeatures();
+        updateUI();
+      }
+
+      function persistCurrentApp() {
+        if (!currentAppName) return;
+
+        const score = computeScore();
+        const payload = {
+          appName: currentAppName,
+          userName: currentUserName,
+          featureScores,
+          featureApplicability,
+          score,
+          updatedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem(getAppStorageKey(currentAppName, currentUserName), JSON.stringify(payload));
+
+        // Only replace THIS user's prior entry for THIS app — other evaluators'
+        // entries for the same app must stay untouched so they can be grouped together.
+        const history = getHistoryEntries().filter((item) =>
+          !(item.appName.toLowerCase() === currentAppName.toLowerCase() &&
+            (item.userName || '').toLowerCase() === (currentUserName || '').toLowerCase())
+        );
+        history.unshift({ appName: currentAppName, userName: currentUserName, score, updatedAt: payload.updatedAt });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 30)));
+        
+        // Also save to Firebase if available
+        saveEvaluationToCloud(currentAppName, currentUserName, {
+          featureScores,
+          featureApplicability,
+          score
+        }).catch(error => console.warn('Firebase save failed:', error));
+        
+        updateHistoryList();
+      }
+
+      function resetCurrentAppCalculations() {
+        if (!currentAppName) return;
+
+        const confirmed = window.confirm(`Reset calculations for ${currentAppName}?`);
+        if (!confirmed) return;
+
+        featureScores = { ...defaultFeatureScores };
+        featureApplicability = { ...defaultFeatureApplicability };
+        renderFeatures();
+        updateUI();
+        persistCurrentApp();
+      }
+
+      function startEvaluation() {
+        const userNameValue = document.getElementById('userNameInput').value.trim();
+        const appNameValue = document.getElementById('appNameInput').value.trim();
+        
+        if (!userNameValue) {
+          alert('Please enter your name');
+          return;
+        }
+        if (!appNameValue) {
+          alert('Please enter an app name');
+          return;
+        }
+
+        currentUserName = userNameValue;
+        const appName = appNameValue;
+
+        currentAppName = appName;
+        document.getElementById('currentAppNameTitle').textContent = appName;
+        document.getElementById('currentAppNameBadge').textContent = appName;
+
+        const savedState = localStorage.getItem(getAppStorageKey(appName, currentUserName));
+        if (savedState) {
+          try {
+            const parsed = JSON.parse(savedState);
+            featureScores = parsed.featureScores || { ...defaultFeatureScores };
+            featureApplicability = parsed.featureApplicability || { ...defaultFeatureApplicability };
+          } catch (error) {
+            featureScores = { ...defaultFeatureScores };
+            featureApplicability = { ...defaultFeatureApplicability };
+          }
+        } else {
+          featureScores = { ...defaultFeatureScores };
+          featureApplicability = { ...defaultFeatureApplicability };
+        }
+
+        document.getElementById('appStartScreen').style.display = 'none';
+        document.getElementById('evaluationScreen').style.display = 'block';
+        renderFeatures();
+        updateUI();
+        persistCurrentApp();
+      }
+
+      document.getElementById('startEvaluationBtn').addEventListener('click', startEvaluation);
+      document.getElementById('userNameInput').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          document.getElementById('appNameInput').focus();
+        }
+      });
+      document.getElementById('appNameInput').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          startEvaluation();
+        }
+      });
+      document.getElementById('resetCalculationsBtn').addEventListener('click', resetCurrentAppCalculations);
+      document.getElementById('shareEvaluationBtn').addEventListener('click', openShareModal);
+      document.getElementById('closeShareModal').addEventListener('click', closeShareModal);
+      document.getElementById('cancelShareModal').addEventListener('click', closeShareModal);
+      document.getElementById('confirmShareBtn').addEventListener('click', shareEvaluationToCloud);
+      document.getElementById('refreshSharedBtn').addEventListener('click', loadSharedEvaluations);
+      document.getElementById('shareModal').addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) {
+          closeShareModal();
+        }
+      });
+      document.getElementById('backToAppInputBtn').addEventListener('click', () => {
+        document.getElementById('evaluationScreen').style.display = 'none';
+        document.getElementById('appStartScreen').style.display = 'flex';
+      });
+      document.getElementById('closeModal').addEventListener('click', closeFeatureModal);
+      document.getElementById('cancelModal').addEventListener('click', closeFeatureModal);
+      document.getElementById('featureModal').addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) {
+          closeFeatureModal();
+        }
+      });
+
+      document.getElementById('saveFeatureScore').addEventListener('click', () => {
+        console.log('Save score clicked!');
+        const modal = document.getElementById('featureModal');
+        const featureId = modal.dataset.featureId;
+        if (!featureId) {
+          console.log('No featureId found');
+          return;
+        }
+
+        const scoreInput = document.getElementById('modalScore');
+
+        if (featureId === 'pushNotificationsScreens') {
+          const answers = {
+            lockScreen: document.querySelector('input[name="lockScreen"]:checked')?.value === 'yes',
+            piiNotifications: document.querySelector('input[name="piiNotifications"]:checked')?.value === 'yes',
+            screenshots: (() => {
+              const value = document.querySelector('input[name="screenshots"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getPushNotificationScore(answers);
+        } else if (featureId === 'piiLeakageLogsCrashReports') {
+          const answers = {
+            fullProfileVisible: document.querySelector('input[name="fullProfileVisible"]:checked')?.value === 'yes',
+            partialPiiInLogs: document.querySelector('input[name="partialPiiInLogs"]:checked')?.value === 'yes',
+            anonymizedCrashReports: (() => {
+              const value = document.querySelector('input[name="anonymizedCrashReports"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getPiiLeakageLogsCrashReportsScore(answers);
+        } else if (featureId === 'dataBackups') {
+          const answers = {
+            sensitiveDataInBackups: document.querySelector('input[name="sensitiveDataInBackups"]:checked')?.value === 'yes',
+            backupUnencrypted: document.querySelector('input[name="backupUnencrypted"]:checked')?.value === 'yes',
+            userControlBackups: (() => {
+              const value = document.querySelector('input[name="userControlBackups"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            dataMinimization: (() => {
+              const value = document.querySelector('input[name="dataMinimization"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            cloudBackup: document.querySelector('input[name="cloudBackup"]:checked')?.value === 'yes'
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getDataBackupsScore(answers);
+        } else if (featureId === 'ageAppropriatePrivacy') {
+          const answers = {
+            ageVerification: (() => {
+              const value = document.querySelector('input[name="ageVerification"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            childProtection: (() => {
+              const value = document.querySelector('input[name="childProtection"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            parentalConsent: (() => {
+              const value = document.querySelector('input[name="parentalConsent"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            childPrivacyCompliance: (() => {
+              const value = document.querySelector('input[name="childPrivacyCompliance"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getAgeAppropriatePrivacyScore(answers);
+        } else if (featureId === 'onDeviceVsCloudPrediction') {
+          const answers = {
+            rawSensorTransmitted: document.querySelector('input[name="rawSensorTransmitted"]:checked')?.value === 'yes',
+            inferenceThirdPartyApi: document.querySelector('input[name="inferenceThirdPartyApi"]:checked')?.value === 'yes',
+            inferenceServerSideDurable: document.querySelector('input[name="inferenceServerSideDurable"]:checked')?.value === 'yes',
+            inferenceLocationDisclosure: (() => {
+              const value = document.querySelector('input[name="inferenceLocationDisclosure"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getOnDeviceVsCloudPredictionScore(answers);
+        } else if (featureId === 'accountPurgeSharedAccounts') {
+          const answers = {
+            deletionRemovesAccountOnly: document.querySelector('input[name="deletionRemovesAccountOnly"]:checked')?.value === 'yes',
+            noPropagationThirdParties: document.querySelector('input[name="noPropagationThirdParties"]:checked')?.value === 'yes',
+            noDeletionCapability: document.querySelector('input[name="noDeletionCapability"]:checked')?.value === 'yes',
+            mlTrainingDataNotPurged: (() => {
+              const value = document.querySelector('input[name="mlTrainingDataNotPurged"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            backupsRetainDataIndefinitely: (() => {
+              const value = document.querySelector('input[name="backupsRetainDataIndefinitely"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            logsRetainPiiPastDeletion: (() => {
+              const value = document.querySelector('input[name="logsRetainPiiPastDeletion"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getPurgeAccountScore(answers);
+        } else if (featureId === 'embeddedSdksHealthData') {
+          const answers = {
+            tier1HealthData: document.querySelector('input[name="tier1HealthData"]:checked')?.value === 'yes',
+            dataBeforeConsent: document.querySelector('input[name="dataBeforeConsent"]:checked')?.value === 'yes',
+            consentNotPropagated: (() => {
+              const value = document.querySelector('input[name="consentNotPropagated"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            conditionContextLeaked: (() => {
+              const value = document.querySelector('input[name="conditionContextLeaked"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            autonomousCollection: (() => {
+              const value = document.querySelector('input[name="autonomousCollection"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })(),
+            dataRetentionAfterDeletion: (() => {
+              const value = document.querySelector('input[name="dataRetentionAfterDeletion"]:checked')?.value;
+              if (value === 'yes') return true;
+              if (value === 'na') return null;
+              return false;
+            })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getEmbeddedSdksHealthDataScore(answers);
+        } else if (featureId === 'piiUrlQueryParams') {
+          const answers = {
+            healthAttributeThirdParty: (() => { const v = document.querySelector('input[name="healthAttributeThirdParty"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            directIdentifierUrlLogs: (() => { const v = document.querySelector('input[name="directIdentifierUrlLogs"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            piiPersistedBrowserHistory: (() => { const v = document.querySelector('input[name="piiPersistedBrowserHistory"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            authTokenInUrl: (() => { const v = document.querySelector('input[name="authTokenInUrl"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getPiiUrlQueryParamsScore(answers);
+        } else if (featureId === 'dataMinimizationPermissionOverreach') {
+          const answers = {
+            readStorageAccess: (() => { const v = document.querySelector('input[name="readStorageAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            writeStorageAccess: (() => { const v = document.querySelector('input[name="writeStorageAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            cameraAccess: (() => { const v = document.querySelector('input[name="cameraAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            microphoneAccess: (() => { const v = document.querySelector('input[name="microphoneAccess"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            rootBypass: (() => { const v = document.querySelector('input[name="rootBypass"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            sslUnpinning: (() => { const v = document.querySelector('input[name="sslUnpinning"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getDataMinimizationPermissionOverreachScore(answers);
+        } else if (featureId === 'dataSharingConsent') {
+          const answers = {
+            formFields: (() => { const v = document.querySelector('input[name="formFields"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            gdprCcpaOptIn: (() => { const v = document.querySelector('input[name="gdprCcpaOptIn"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            policyClarity: (() => { const v = document.querySelector('input[name="policyClarity"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getDataSharingConsentScore(answers);
+        } else if (featureId === 'dataEncryption') {
+          const answers = {
+            encryptionAtRest: (() => { const v = document.querySelector('input[name="encryptionAtRest"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            encryptionInTransit: (() => { const v = document.querySelector('input[name="encryptionInTransit"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            pkiCertValidity: (() => { const v = document.querySelector('input[name="pkiCertValidity"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getDataEncryptionScore(answers);
+        } else if (featureId === 'accountSharingFeatures') {
+          const answers = {
+            crossSharingFamilyData: (() => { const v = document.querySelector('input[name="crossSharingFamilyData"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            repudiationCrossAccount: (() => { const v = document.querySelector('input[name="repudiationCrossAccount"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getAccountSharingFeaturesScore(answers);
+        } else if (featureId === 'firmwareUpdateDevice') {
+          const answers = {
+            macAddressExposure: (() => { const v = document.querySelector('input[name="macAddressExposure"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            firmwareCodeSigning: (() => { const v = document.querySelector('input[name="firmwareCodeSigning"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            forcedUpdateReconsent: (() => { const v = document.querySelector('input[name="forcedUpdateReconsent"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })(),
+            changelogTransparency: (() => { const v = document.querySelector('input[name="changelogTransparency"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getFirmwareUpdateDeviceScore(answers);
+        } else if (featureId === 'breachNotificationTimeWindow') {
+          const answers = {
+            breachTimeWindowMentioned: (() => { const v = document.querySelector('input[name="breachTimeWindowMentioned"]:checked')?.value; return v === 'yes' ? true : v === 'na' ? null : false; })()
+          };
+          featureModalSelections[featureId] = answers;
+          featureScores[featureId] = getBreachNotificationTimeWindowScore(answers);
+        } else {
+          featureScores[featureId] = Number(scoreInput.value);
+        }
+
+        renderFeatures();
+        updateUI();
+        persistCurrentApp();
+        closeFeatureModal();
+      });
+
+      const modalScoreValue = document.getElementById('modalScoreValue');
+      if (modalScoreValue) {
+        const modalScoreValueElement = modalScoreValue;
+        const modalScoreValueObserver = new MutationObserver(() => {
+          setScoreBadgeLevel(modalScoreValueElement, modalScoreValueElement.textContent);
+        });
+        modalScoreValueObserver.observe(modalScoreValueElement, {
+          childList: true,
+          characterData: true,
+          subtree: true
+        });
+      }
+
+      function getRagColor(score) {
+        if (score >= 85) return '#14b8a6';
+        if (score >= 70) return '#54c98f';
+        if (score >= 55) return '#f59e0b';
+        if (score >= 35) return '#f97316';
+        return '#ef4444';
+      }
+
+      function renderPortfolioChart() {
+        const chart = document.getElementById('portfolioChart');
+        if (!chart) return;
+
+        const history = getHistoryEntries().slice(0, 6);
+        if (!history.length) {
+          chart.innerHTML = '<div class="empty-state">No app evaluations yet</div>';
+          return;
+        }
+
+        chart.innerHTML = history.map((entry) => {
+          const score = Number(entry.score) || 0;
+          const barColor = getRagColor(score);
+          const width = `${Math.max(score, 5)}%`;
+          return `
+            <div class="chart-row">
+              <span class="chart-name">${escapeHtml(entry.appName || 'Untitled App')}</span>
+              <div class="chart-track" aria-label="${escapeHtml(entry.appName || 'Untitled App')} score ${score}">
+                <span class="chart-bar" style="width: ${width}; background: ${barColor};"></span>
+              </div>
+              <span class="chart-score" style="color: ${barColor};">${score}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      updateHistoryList();
+      initializeFirebase();
+    </script>
+  </body>
+</html>
