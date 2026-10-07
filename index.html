@@ -2053,6 +2053,219 @@
         const finalScore = Math.round(((meanScore + weightedAverage) / 2) * 10);
         return finalScore;
       }
+
+      function renderFeatures() {
+        const grid = document.getElementById('featureGrid');
+        if (!grid) return;
+
+        grid.innerHTML = Object.entries(featureDefinitions)
+          .map(([featureId, feature]) => {
+            const isApplicable = featureApplicability[featureId] !== false;
+            return `
+              <article class="feature-card">
+                <div class="feature-header">
+                  <div>
+                    <label>${escapeHtml(feature.label)}</label>
+                    <small>${escapeHtml(feature.description)}</small>
+                  </div>
+                  <span class="feature-score" data-level="${getScoreLevel(featureScores[featureId] ?? feature.initial)}">${featureScores[featureId] ?? feature.initial}</span>
+                </div>
+                <div class="feature-meta">
+                  <label for="featureStatus_${featureId}">Applicable</label>
+                  <select id="featureStatus_${featureId}" data-feature-id="${featureId}">
+                    <option value="true" ${isApplicable ? 'selected' : ''}>Yes</option>
+                    <option value="false" ${!isApplicable ? 'selected' : ''}>No</option>
+                  </select>
+                </div>
+                <button type="button" class="feature-button" data-feature-id="${featureId}">Review rubric</button>
+              </article>
+            `;
+          })
+          .join('');
+
+        document.querySelectorAll('.feature-button').forEach((button) => {
+          button.addEventListener('click', () => openFeatureModal(button.dataset.featureId));
+        });
+
+        document.querySelectorAll('select[data-feature-id]').forEach((select) => {
+          select.addEventListener('change', (event) => {
+            const featureId = event.target.dataset.featureId;
+            featureApplicability[featureId] = event.target.value === 'true';
+            updateUI();
+            persistCurrentApp();
+            renderFeatures();
+          });
+        });
+      }
+
+      function persistCurrentApp() {
+        if (!currentAppName) return;
+        const payload = {
+          appName: currentAppName,
+          userName: currentUserName,
+          featureScores,
+          featureApplicability,
+          score: computeScore(),
+          updatedAt: new Date().toISOString()
+        };
+
+        try {
+          localStorage.setItem(getAppStorageKey(currentAppName, currentUserName), JSON.stringify(payload));
+        } catch (error) {
+          console.warn('Could not save local evaluation state', error);
+        }
+
+        const history = getHistoryEntries();
+        const item = {
+          appName: currentAppName,
+          userName: currentUserName,
+          score: computeScore(),
+          updatedAt: new Date().toISOString()
+        };
+
+        const nextHistory = [item, ...history.filter((entry) => !(entry.appName === currentAppName && entry.userName === currentUserName))];
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
+        updateHistoryList();
+      }
+
+      function renderPortfolioChart() {
+        const list = document.getElementById('evaluationHistoryList');
+        if (!list) return;
+        const history = getHistoryEntries();
+        if (!history.length) {
+          list.innerHTML = '<li class="empty-state">No evaluations yet</li>';
+          return;
+        }
+        // Keep it lightweight: just show a summary list.
+        updateHistoryList();
+      }
+
+      function startEvaluation() {
+        const userName = document.getElementById('userNameInput')?.value.trim();
+        const appName = document.getElementById('appNameInput')?.value.trim();
+
+        if (!userName || !appName) {
+          alert('Please enter both your name and the app name before starting.');
+          return;
+        }
+
+        currentUserName = userName;
+        currentAppName = appName;
+        evaluationCompleted = false;
+        featureScores = { ...defaultFeatureScores };
+        featureApplicability = { ...defaultFeatureApplicability };
+
+        document.getElementById('appStartScreen').style.display = 'none';
+        document.getElementById('evaluationScreen').style.display = 'block';
+        document.getElementById('currentAppNameTitle').textContent = appName;
+        document.getElementById('currentAppNameBadge').textContent = appName;
+        document.getElementById('shareEvaluationBtn').disabled = true;
+        document.getElementById('userNameInput').value = userName;
+        document.getElementById('appNameInput').value = appName;
+
+        renderFeatures();
+        updateUI();
+      }
+
+      function openFeatureModal(featureId) {
+        if (!featureDefinitions[featureId]) return;
+        const modal = document.getElementById('featureModal');
+        const scoreInput = document.getElementById('modalScore');
+        const scoreValue = document.getElementById('modalScoreValue');
+
+        document.getElementById('modalTitle').textContent = featureDefinitions[featureId].label;
+
+        const renderer = {
+          pushNotificationsScreens: renderPushNotificationQuestions,
+          onDeviceVsCloudPrediction: renderOnDeviceVsCloudPredictionQuestions,
+          ageAppropriatePrivacy: renderAgeAppropriatePrivacyQuestions,
+          dataBackups: renderDataBackupQuestions
+        }[featureId];
+
+        if (renderer) {
+          renderer(featureId);
+        } else {
+          document.getElementById('modalRubricList').innerHTML = `<li>${escapeHtml(featureDefinitions[featureId].description)}</li>`;
+          scoreInput.value = featureScores[featureId] ?? featureDefinitions[featureId].initial;
+          scoreInput.disabled = false;
+          scoreValue.textContent = scoreInput.value;
+        }
+
+        modal.removeAttribute('inert');
+        modal.setAttribute('aria-hidden', 'false');
+        modal.style.display = 'flex';
+      }
+
+      function closeFeatureModal() {
+        const modal = document.getElementById('featureModal');
+        modal.setAttribute('inert', '');
+        modal.setAttribute('aria-hidden', 'true');
+        modal.style.display = 'none';
+      }
+
+      function initializeAppEvents() {
+        const startBtn = document.getElementById('startEvaluationBtn');
+        if (startBtn) startBtn.addEventListener('click', startEvaluation);
+
+        const backBtn = document.getElementById('backToAppInputBtn');
+        if (backBtn) {
+          backBtn.addEventListener('click', () => {
+            document.getElementById('evaluationScreen').style.display = 'none';
+            document.getElementById('appStartScreen').style.display = 'block';
+            document.getElementById('shareEvaluationBtn').disabled = true;
+          });
+        }
+
+        const completeBtn = document.getElementById('completeEvaluationBtn');
+        if (completeBtn) completeBtn.addEventListener('click', completeEvaluation);
+
+        const shareBtn = document.getElementById('shareEvaluationBtn');
+        if (shareBtn) shareBtn.addEventListener('click', openShareModal);
+
+        const confirmShareBtn = document.getElementById('confirmShareBtn');
+        if (confirmShareBtn) confirmShareBtn.addEventListener('click', shareEvaluationToCloud);
+
+        const cancelShareBtn = document.getElementById('cancelShareModal');
+        if (cancelShareBtn) cancelShareBtn.addEventListener('click', closeShareModal);
+
+        const closeShareBtn = document.getElementById('closeShareModal');
+        if (closeShareBtn) closeShareBtn.addEventListener('click', closeShareModal);
+
+        const cancelModalBtn = document.getElementById('cancelModal');
+        if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeFeatureModal);
+
+        const closeModalBtn = document.getElementById('closeModal');
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closeFeatureModal);
+
+        const saveFeatureBtn = document.getElementById('saveFeatureScore');
+        if (saveFeatureBtn) {
+          saveFeatureBtn.addEventListener('click', () => {
+            const scoreInput = document.getElementById('modalScore');
+            const featureId = document.getElementById('modalTitle').dataset.featureId || document.querySelector('.feature-button:focus')?.dataset.featureId;
+            const activeFeatureId = featureId || currentAppName;
+            if (!activeFeatureId || !featureDefinitions[activeFeatureId]) {
+              closeFeatureModal();
+              return;
+            }
+            featureScores[activeFeatureId] = Number(scoreInput.value);
+            featureApplicability[activeFeatureId] = true;
+            closeFeatureModal();
+            renderFeatures();
+            updateUI();
+            persistCurrentApp();
+          });
+        }
+
+        const refreshSharedBtn = document.getElementById('refreshSharedBtn');
+        if (refreshSharedBtn) refreshSharedBtn.addEventListener('click', () => {
+          initializeFirebaseForReading();
+        });
+
+        initializeFirebaseForReading();
+        updateHistoryList();
+      }
+
+      initializeAppEvents();
     </script>
   </body>
 </html>
