@@ -1037,6 +1037,9 @@
           const data = snapshot.val();
           sharedEvaluations = data ? Object.values(data) : [];
           renderSharedEvaluations();
+        }, (error) => {
+          console.error('Firebase read error:', error.code, error.message);
+          console.log('Check your Firebase Realtime Database Rules. In test mode, add: { "rules": { ".read": true, ".write": true } }');
         });
       }
 
@@ -1218,12 +1221,14 @@
 
         database.ref(`evaluations/${evaluationId}`).set(evaluationData)
           .then(() => {
+            console.log('Evaluation saved successfully to Firebase');
             alert('Evaluation shared successfully!');
             closeShareModal();
             loadSharedEvaluations();
           })
           .catch((error) => {
-            alert('Error sharing evaluation: ' + error.message);
+            console.error('Firebase write error:', error.code, error.message);
+            alert('Error sharing evaluation: ' + error.message + '\n\nMake sure your Firebase Realtime Database Rules allow write access. In test mode, use: { "rules": { ".read": true, ".write": true } }');
           });
       }
 
