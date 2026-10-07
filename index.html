@@ -1018,14 +1018,25 @@
       // Initialize Firebase
       function initializeFirebase() {
         try {
-          if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length === 0) {
+          if (typeof firebase === 'undefined') {
+            console.warn('Firebase library not loaded');
+            return;
+          }
+          if (firebase.apps && firebase.apps.length === 0) {
             firebase.initializeApp(FIREBASE_CONFIG);
             database = firebase.database();
             firebaseInitialized = true;
+            console.log('Firebase initialized successfully');
+            loadSharedEvaluations();
+          } else if (firebase.apps && firebase.apps.length > 0) {
+            database = firebase.database();
+            firebaseInitialized = true;
+            console.log('Firebase already initialized');
             loadSharedEvaluations();
           }
         } catch (error) {
-          console.warn('Firebase initialization skipped:', error.message);
+          console.error('Firebase initialization error:', error.message, error);
+          firebaseInitialized = false;
         }
       }
 
@@ -1205,8 +1216,17 @@
 
       // Share current evaluation to cloud
       function shareEvaluationToCloud() {
-        if (!firebaseInitialized || !database) {
-          alert('Cloud sharing is not available. Evaluations are saved locally.');
+        console.log('Share button clicked. Firebase initialized:', firebaseInitialized, 'Database:', !!database);
+        
+        if (!firebaseInitialized) {
+          console.warn('Firebase not initialized');
+          alert('Cloud sharing is not available. Evaluations are saved locally. Firebase failed to initialize.');
+          return;
+        }
+        
+        if (!database) {
+          console.warn('Database reference not available');
+          alert('Cloud sharing is not available. Evaluations are saved locally. Database connection failed.');
           return;
         }
 
@@ -1220,6 +1240,8 @@
           timestamp: Date.now()
         };
 
+        console.log('Attempting to save evaluation:', evaluationId);
+        
         database.ref(`evaluations/${evaluationId}`).set(evaluationData)
           .then(() => {
             console.log('Evaluation saved successfully to Firebase');
@@ -1228,8 +1250,9 @@
             loadSharedEvaluations();
           })
           .catch((error) => {
-            console.error('Firebase write error:', error.code, error.message);
-            alert('Error sharing evaluation: ' + error.message + '\n\nMake sure your Firebase Realtime Database Rules allow write access. In test mode, use: { "rules": { ".read": true, ".write": true } }');
+            console.error('Firebase write error:', error.code, error.message, error);
+            const errorMsg = 'Error sharing evaluation: ' + error.message + '\n\nMake sure your Firebase Realtime Database Rules allow write access. In test mode, use: { "rules": { ".read": true, ".write": true } }\n\nCheck browser console for details.';
+            alert(errorMsg);
           });
       }
 
@@ -3572,7 +3595,17 @@
       }
 
       updateHistoryList();
-      initializeFirebase();
+      
+      // Initialize Firebase with a small delay to ensure DOM is ready
+      setTimeout(() => {
+        console.log('Initializing Firebase...');
+        initializeFirebase();
+      }, 100);
+      
+      // Log Firebase availability
+      setTimeout(() => {
+        console.log('Firebase status check - Initialized:', firebaseInitialized, 'Database:', !!database);
+      }, 500);
     </script>
   </body>
 </html>
