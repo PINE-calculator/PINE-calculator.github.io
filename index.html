@@ -716,7 +716,8 @@
         <div class="header-actions">
           <button id="backToAppInputBtn" type="button" class="secondary-btn">Back to app input</button>
           <div class="badge" id="currentAppNameBadge">Privacy Palette</div>
-          <button id="shareEvaluationBtn" type="button" class="secondary-btn">Share evaluation</button>
+          <button id="completeEvaluationBtn" type="button" class="primary-btn">Complete Evaluation</button>
+          <button id="shareEvaluationBtn" type="button" class="secondary-btn" disabled>Share to Cloud</button>
           <button id="resetCalculationsBtn" type="button" class="secondary-btn">Reset calculations</button>
         </div>
       </div>
@@ -1014,6 +1015,7 @@
       let firebaseInitialized = false;
       let database = null;
       let sharedEvaluations = [];
+      let evaluationCompleted = false;
 
       // Initialize Firebase
       function initializeFirebase() {
@@ -1235,8 +1237,34 @@
         updateUI();
       }
 
+      // Mark evaluation as completed and save locally
+      function completeEvaluation() {
+        if (!currentAppName) {
+          alert('No evaluation in progress');
+          return;
+        }
+        
+        // Save to local storage
+        persistCurrentApp();
+        
+        // Mark as completed
+        evaluationCompleted = true;
+        
+        // Enable the share button
+        const shareBtn = document.getElementById('shareEvaluationBtn');
+        shareBtn.disabled = false;
+        
+        alert('Evaluation completed! You can now share it to the cloud.');
+        console.log('Evaluation completed for:', currentAppName);
+      }
+
       // Share current evaluation to cloud
       function shareEvaluationToCloud() {
+        if (!evaluationCompleted) {
+          alert('Please complete the evaluation first by clicking "Complete Evaluation" button.');
+          return;
+        }
+        
         console.log('Share button clicked. Firebase initialized:', firebaseInitialized, 'Database:', !!database);
         
         if (!firebaseInitialized) {
@@ -3298,6 +3326,13 @@
         document.getElementById('currentAppNameTitle').textContent = appName;
         document.getElementById('currentAppNameBadge').textContent = appName;
 
+        // Reset evaluation state for new evaluation
+        evaluationCompleted = false;
+        const shareBtn = document.getElementById('shareEvaluationBtn');
+        if (shareBtn) {
+          shareBtn.disabled = true;
+        }
+
         const savedState = localStorage.getItem(getAppStorageKey(appName, currentUserName));
         if (savedState) {
           try {
@@ -3332,6 +3367,7 @@
         }
       });
       document.getElementById('resetCalculationsBtn').addEventListener('click', resetCurrentAppCalculations);
+      document.getElementById('completeEvaluationBtn').addEventListener('click', completeEvaluation);
       document.getElementById('shareEvaluationBtn').addEventListener('click', openShareModal);
       document.getElementById('closeShareModal').addEventListener('click', closeShareModal);
       document.getElementById('cancelShareModal').addEventListener('click', closeShareModal);
