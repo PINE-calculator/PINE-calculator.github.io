@@ -1023,10 +1023,21 @@
             return;
           }
           if (firebase.apps && firebase.apps.length === 0) {
+            console.log('Initializing Firebase with config:', FIREBASE_CONFIG);
             firebase.initializeApp(FIREBASE_CONFIG);
             database = firebase.database();
             firebaseInitialized = true;
             console.log('Firebase initialized successfully');
+            
+            // Test connection
+            database.ref('.info/connected').on('value', (snapshot) => {
+              if (snapshot.val() === true) {
+                console.log('Firebase: Connected to database');
+              } else {
+                console.warn('Firebase: Disconnected from database');
+              }
+            });
+            
             loadSharedEvaluations();
           } else if (firebase.apps && firebase.apps.length > 0) {
             database = firebase.database();
@@ -1241,8 +1252,18 @@
         };
 
         console.log('Attempting to save evaluation:', evaluationId);
+        console.log('Database ref path:', `evaluations/${evaluationId}`);
+        console.log('Data being saved:', evaluationData);
         
-        database.ref(`evaluations/${evaluationId}`).set(evaluationData)
+        // Create a timeout promise that rejects after 10 seconds
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Firebase operation timed out after 10 seconds')), 10000);
+        });
+        
+        const ref = database.ref(`evaluations/${evaluationId}`);
+        console.log('Database reference created:', ref);
+        
+        Promise.race([ref.set(evaluationData), timeoutPromise])
           .then(() => {
             console.log('Evaluation saved successfully to Firebase');
             alert('Evaluation shared successfully!');
@@ -1251,7 +1272,8 @@
           })
           .catch((error) => {
             console.error('Firebase write error:', error.code, error.message, error);
-            const errorMsg = 'Error sharing evaluation: ' + error.message + '\n\nMake sure your Firebase Realtime Database Rules allow write access. In test mode, use: { "rules": { ".read": true, ".write": true } }\n\nCheck browser console for details.';
+            console.error('Full error object:', error);
+            const errorMsg = 'Error sharing evaluation: ' + error.message + '\n\nCommon fixes:\n1. Check Firebase Realtime Database Rules: { "rules": { ".read": true, ".write": true } }\n2. Ensure databaseURL is correct in config\n3. Check browser console (F12) for CORS or network errors';
             alert(errorMsg);
           });
       }
