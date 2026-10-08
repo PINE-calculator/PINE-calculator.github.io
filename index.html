@@ -1090,7 +1090,12 @@
         evaluationsRef.on('value', (snapshot) => {
           const data = snapshot.val();
           console.log('Received data from Firebase:', data);
-          sharedEvaluations = data ? Object.values(data) : [];
+          const latestByKey = {};
+          Object.values(data || {}).forEach((e) => {
+            const k = `${(e.appName || '').trim().toLowerCase()}__${(e.userName || '').trim().toLowerCase()}`;
+            if (!latestByKey[k] || (e.timestamp || 0) > (latestByKey[k].timestamp || 0)) latestByKey[k] = e;
+          });
+          sharedEvaluations = Object.values(latestByKey);
           console.log('Processed shared evaluations:', sharedEvaluations.length, 'items');
           renderSharedEvaluations();
         }, (error) => {
@@ -1308,7 +1313,8 @@
           return;
         }
 
-        const evaluationId = `${encodeURIComponent(currentAppName)}_${Date.now()}`;
+        const safeKey = (v) => encodeURIComponent(v.trim().toLowerCase()).replace(/\./g, '%2E');
+        const evaluationId = `${safeKey(currentAppName)}__${safeKey(currentUserName)}`;
         const evaluationScore = computeScore();
         
         const evaluationData = {
@@ -2136,7 +2142,7 @@
           updatedAt: new Date().toISOString()
         };
 
-        const nextHistory = [item, ...history.filter((entry) => !(entry.appName === currentAppName && entry.userName === currentUserName))];
+        const nextHistory = [item, ...history.filter((entry) => !((entry.appName || '').trim().toLowerCase() === currentAppName.trim().toLowerCase() && (entry.userName || '').trim().toLowerCase() === currentUserName.trim().toLowerCase()))];
         localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
         updateHistoryList();
       }
@@ -2153,6 +2159,33 @@
         updateHistoryList();
       }
 
+      function loadAppEvaluation(appName, userName) {
+        currentAppName = appName;
+        currentUserName = userName || '';
+        evaluationCompleted = false;
+        featureScores = { ...defaultFeatureScores };
+        featureApplicability = { ...defaultFeatureApplicability };
+        try {
+          const saved = localStorage.getItem(getAppStorageKey(appName, userName));
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            featureScores = { ...defaultFeatureScores, ...(parsed.featureScores || {}) };
+            featureApplicability = { ...defaultFeatureApplicability, ...(parsed.featureApplicability || {}) };
+          }
+        } catch (error) {
+          console.warn('Could not load saved evaluation', error);
+        }
+        document.getElementById('userNameInput').value = currentUserName;
+        document.getElementById('appNameInput').value = appName;
+        document.getElementById('currentAppNameTitle').textContent = appName;
+        document.getElementById('currentAppNameBadge').textContent = appName;
+        document.getElementById('appStartScreen').style.display = 'none';
+        document.getElementById('evaluationScreen').style.display = 'block';
+        document.getElementById('shareEvaluationBtn').disabled = true;
+        renderFeatures();
+        updateUI();
+      }
+
       function startEvaluation() {
         const userName = document.getElementById('userNameInput')?.value.trim();
         const appName = document.getElementById('appNameInput')?.value.trim();
@@ -2162,19 +2195,32 @@
           return;
         }
 
-        currentUserName = userName;
-        currentAppName = appName;
+        const existing = getHistoryEntries();
+        const sameApp = existing.find((e) => (e.appName || '').trim().toLowerCase() === appName.toLowerCase());
+        const sameAppUser = existing.find((e) => (e.appName || '').trim().toLowerCase() === appName.toLowerCase() && (e.userName || '').trim().toLowerCase() === userName.toLowerCase());
+        currentAppName = sameApp ? sameApp.appName : appName;
+        currentUserName = sameAppUser ? sameAppUser.userName : userName;
         evaluationCompleted = false;
         featureScores = { ...defaultFeatureScores };
         featureApplicability = { ...defaultFeatureApplicability };
+        try {
+          const saved = localStorage.getItem(getAppStorageKey(appName, userName));
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            featureScores = { ...defaultFeatureScores, ...(parsed.featureScores || {}) };
+            featureApplicability = { ...defaultFeatureApplicability, ...(parsed.featureApplicability || {}) };
+          }
+        } catch (error) {
+          console.warn('Could not restore saved evaluation', error);
+        }
 
         document.getElementById('appStartScreen').style.display = 'none';
         document.getElementById('evaluationScreen').style.display = 'block';
-        document.getElementById('currentAppNameTitle').textContent = appName;
-        document.getElementById('currentAppNameBadge').textContent = appName;
+        document.getElementById('currentAppNameTitle').textContent = currentAppName;
+        document.getElementById('currentAppNameBadge').textContent = currentAppName;
         document.getElementById('shareEvaluationBtn').disabled = true;
-        document.getElementById('userNameInput').value = userName;
-        document.getElementById('appNameInput').value = appName;
+        document.getElementById('userNameInput').value = currentUserName;
+        document.getElementById('appNameInput').value = currentAppName;
 
         renderFeatures();
         updateUI();
@@ -2187,6 +2233,7 @@
         const scoreValue = document.getElementById('modalScoreValue');
 
         document.getElementById('modalTitle').textContent = featureDefinitions[featureId].label;
+        modal.dataset.featureId = featureId;
 
         const renderer = {
           pushNotificationsScreens: renderPushNotificationQuestions,
@@ -2202,6 +2249,7 @@
           scoreInput.value = featureScores[featureId] ?? featureDefinitions[featureId].initial;
           scoreInput.disabled = false;
           scoreValue.textContent = scoreInput.value;
+          scoreInput.oninput = () => { scoreValue.textContent = scoreInput.value; };
         }
 
         modal.removeAttribute('inert');
@@ -2254,18 +2302,24 @@
         if (saveFeatureBtn) {
           saveFeatureBtn.addEventListener('click', () => {
             const scoreInput = document.getElementById('modalScore');
-            const featureId = document.getElementById('modalTitle').dataset.featureId || document.querySelector('.feature-button:focus')?.dataset.featureId;
-            const activeFeatureId = featureId || currentAppName;
+            const activeFeatureId = document.getElementById('featureModal').dataset.featureId;
             if (!activeFeatureId || !featureDefinitions[activeFeatureId]) {
               closeFeatureModal();
               return;
             }
-            featureScores[activeFeatureId] = Number(scoreInput.value);
-            featureApplicability[activeFeatureId] = true;
+            const newScore = Number(scoreInput.value);
+            if (!Number.isNaN(newScore)) {
+              featureScores[activeFeatureId] = newScore;
+              featureApplicability[activeFeatureId] = true;
+            }
             closeFeatureModal();
             renderFeatures();
             updateUI();
             persistCurrentApp();
+            // A changed rating invalidates a previous "complete" state until re-completed
+            evaluationCompleted = false;
+            const shareBtn = document.getElementById('shareEvaluationBtn');
+            if (shareBtn) shareBtn.disabled = true;
           });
         }
 
