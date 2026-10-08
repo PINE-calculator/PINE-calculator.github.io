@@ -1131,8 +1131,14 @@
           .map(([appName, evaluations]) => {
             const sorted = [...evaluations].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             const latestEval = sorted[0];
-            const scoreColor = getScoreLevelColor(latestEval.weightedScore);
             const hasMultiple = sorted.length > 1;
+            // Show the average across evaluators when several people rated the app
+            let displayScore = latestEval.weightedScore;
+            if (hasMultiple) {
+              const total = sorted.reduce((sum, e) => sum + (Number(e.weightedScore) || 0), 0);
+              displayScore = Math.round((total / sorted.length) * 10) / 10;
+            }
+            const scoreColor = getScoreLevelColor(displayScore);
             const visibleEvaluators = sorted.slice(0, 6);
             const extraCount = sorted.length - visibleEvaluators.length;
             const allEvaluatorsList = visibleEvaluators.map((e) => {
@@ -1147,7 +1153,7 @@
                     <strong style="font-size: 15px;">${escapeHtml(appName)}</strong>
                     ${hasMultiple ? `<div style="font-size: 11px; color: #999; margin-top: 4px;">${sorted.length} evaluations</div>` : ''}
                   </div>
-                  <div style="background: ${scoreColor}; color: white; padding: 6px 12px; border-radius: 14px; font-weight: bold; font-size: 14px; text-align: center;">${latestEval.weightedScore}</div>
+                  <div style="background: ${scoreColor}; color: white; padding: 6px 12px; border-radius: 14px; font-weight: bold; font-size: 14px; text-align: center;">${hasMultiple ? `Avg: ${displayScore}` : displayScore}</div>
                 </div>
                 <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Latest by <strong>${escapeHtml(latestEval.userName)}</strong> • ${new Date(latestEval.timestamp).toLocaleDateString()}</div>
                 ${hasMultiple ? `
