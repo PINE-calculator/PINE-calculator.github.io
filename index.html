@@ -2069,9 +2069,16 @@
         });
       }
 
+      // Not-applicable features count as full marks (10); the underlying rating is kept
+      // so it comes back if the feature is switched back to applicable.
+      function getEffectiveFeatureScore(id) {
+        if (featureApplicability[id] === false) return 10;
+        return featureScores[id] ?? featureDefinitions[id].initial;
+      }
+
       function computeScore() {
-        const total = Object.keys(featureDefinitions).reduce((sum, id) => sum + (featureApplicability[id] === false ? 10 : featureScores[id]), 0);
-        const weightedTotal = Object.keys(featureDefinitions).reduce((sum, id) => sum + ((featureApplicability[id] === false ? 10 : featureScores[id]) * weights[id]), 0);
+        const total = Object.keys(featureDefinitions).reduce((sum, id) => sum + getEffectiveFeatureScore(id), 0);
+        const weightedTotal = Object.keys(featureDefinitions).reduce((sum, id) => sum + (getEffectiveFeatureScore(id) * weights[id]), 0);
         const totalWeight = Object.keys(featureDefinitions).reduce((sum, id) => sum + weights[id], 0);
         const meanScore = total / Object.keys(featureDefinitions).length;
         const weightedAverage = weightedTotal / totalWeight;
@@ -2086,6 +2093,7 @@
         grid.innerHTML = Object.entries(featureDefinitions)
           .map(([featureId, feature]) => {
             const isApplicable = featureApplicability[featureId] !== false;
+            const shownScore = getEffectiveFeatureScore(featureId);
             return `
               <article class="feature-card">
                 <div class="feature-header">
@@ -2093,7 +2101,7 @@
                     <label>${escapeHtml(feature.label)}</label>
                     <small>${escapeHtml(feature.description)}</small>
                   </div>
-                  <span class="feature-score" data-level="${getScoreLevel(featureScores[featureId] ?? feature.initial)}">${featureScores[featureId] ?? feature.initial}</span>
+                  <span class="feature-score" data-level="${getScoreLevel(shownScore)}" title="${isApplicable ? '' : 'Not applicable - counted as 10'}">${shownScore}</span>
                 </div>
                 <div class="feature-meta">
                   <label for="featureStatus_${featureId}">Applicable</label>
@@ -2102,7 +2110,7 @@
                     <option value="false" ${!isApplicable ? 'selected' : ''}>No</option>
                   </select>
                 </div>
-                <button type="button" class="feature-button" data-feature-id="${featureId}">Review rubric</button>
+                <button type="button" class="feature-button" data-feature-id="${featureId}" ${isApplicable ? '' : 'disabled title="Not applicable - scored 10 automatically"'}>${isApplicable ? 'Review rubric' : 'Not applicable (10)'}</button>
               </article>
             `;
           })
