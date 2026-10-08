@@ -28,6 +28,18 @@
         box-sizing: border-box;
       }
 
+      /* Always reserve scrollbar space so centered content doesn't jump sideways
+         when the page grows tall enough to scroll (e.g. after shared evaluations load). */
+      html {
+        scrollbar-gutter: stable;
+      }
+
+      @supports not (scrollbar-gutter: stable) {
+        html {
+          overflow-y: scroll;
+        }
+      }
+
       body {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -2286,7 +2298,7 @@
         if (backBtn) {
           backBtn.addEventListener('click', () => {
             document.getElementById('evaluationScreen').style.display = 'none';
-            document.getElementById('appStartScreen').style.display = 'block';
+            document.getElementById('appStartScreen').style.display = 'flex';
             document.getElementById('shareEvaluationBtn').disabled = true;
           });
         }
