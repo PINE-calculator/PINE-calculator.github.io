@@ -831,6 +831,151 @@
 
       .compare-row:hover { background: #f5f8fc; }
 
+
+      /* ---- Emoji categories, view toggle, dot-plot charts ---- */
+      .view-toggle {
+        display: inline-flex;
+        gap: 4px;
+        margin: 12px 0 4px;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.14);
+      }
+
+      .view-toggle button {
+        border: none;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 800;
+        padding: 7px 14px;
+        cursor: pointer;
+      }
+
+      .view-toggle button.active {
+        background: #ffffff;
+        color: var(--navy);
+        box-shadow: 0 2px 8px rgba(16, 33, 58, 0.12);
+      }
+
+      .app-emoji {
+        display: inline-block;
+        margin-right: 6px;
+        font-size: 1.15em;
+        line-height: 1;
+        vertical-align: -1px;
+      }
+
+      .cat-section { margin-bottom: 18px; }
+
+      .cat-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 6px 0 10px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: var(--panel-alt);
+        border: 1px solid var(--border);
+      }
+
+      .cat-head > div:nth-child(2) { flex: 1; min-width: 0; }
+      .cat-emoji { font-size: 1.7rem; line-height: 1; }
+      .cat-title { font-weight: 800; color: var(--navy); font-size: 0.98rem; }
+      .cat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+      .cat-summary-chart { display: grid; gap: 10px; margin: 12px 0 20px; }
+      .cat-summary-chart .chart-row { grid-template-columns: minmax(120px, 1.2fr) minmax(110px, 2.2fr) auto; }
+
+      .chart-key {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+        margin: 4px 0 12px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--muted);
+        align-items: center;
+      }
+
+      .chart-key .key-dot,
+      .chart-key .key-mean { display: inline-block; vertical-align: -2px; margin-right: 6px; }
+      .chart-key .key-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--indigo); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(16,33,58,0.3); }
+      .chart-key .key-mean { width: 3px; height: 14px; border-radius: 2px; background: var(--navy); }
+
+      .chart-app-row {
+        display: grid;
+        grid-template-columns: minmax(100px, 1fr) minmax(120px, 2.4fr) auto;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 8px 10px 20px;
+        margin-bottom: 4px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        background: none;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .chart-app-row:hover { background: #f5f8fc; border-color: var(--border); }
+      .chart-app-name { font-weight: 800; font-size: 0.86rem; color: var(--navy); overflow: hidden; text-overflow: ellipsis; }
+      .chart-app-name small { display: block; font-weight: 600; color: var(--muted); font-size: 0.7rem; margin-top: 2px; }
+      .chart-app-row .score-pill { min-width: 56px; padding: 4px 10px; }
+
+      .dotplot { position: relative; padding: 0 7px; }
+
+      .dotplot-track {
+        position: relative;
+        height: 22px;
+        border-radius: 999px;
+        background: linear-gradient(90deg,
+          rgba(231, 76, 60, 0.16) 0%, rgba(231, 76, 60, 0.16) 50%,
+          rgba(243, 156, 18, 0.18) 50%, rgba(243, 156, 18, 0.18) 80%,
+          rgba(39, 174, 96, 0.18) 80%, rgba(39, 174, 96, 0.18) 100%);
+      }
+
+      .dotplot .dot {
+        position: absolute;
+        top: 50%;
+        width: 14px;
+        height: 14px;
+        margin: -7px 0 0 -7px;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        box-shadow: 0 1px 4px rgba(16, 33, 58, 0.35);
+        opacity: 0.92;
+      }
+
+      .dotplot .dot[data-band="high"] { background: var(--score-high); }
+      .dotplot .dot[data-band="moderate"] { background: var(--score-moderate); }
+      .dotplot .dot[data-band="low"] { background: var(--score-low); }
+
+      .dotplot .dot-mean {
+        position: absolute;
+        top: -3px;
+        bottom: -3px;
+        width: 3px;
+        margin-left: -1.5px;
+        border-radius: 2px;
+        background: var(--navy);
+      }
+
+      .dotplot-axis { position: relative; height: 14px; margin-top: 3px; font-size: 9px; font-weight: 700; color: var(--muted); }
+      .dotplot-axis span { position: absolute; transform: translateX(-50%); }
+
+      .shared-dotplot { margin-top: 10px; }
+      .shared-dotplot-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+      @media (max-width: 560px) {
+        .chart-app-row { grid-template-columns: 1fr auto; }
+        .chart-app-row .dotplot { grid-column: 1 / -1; order: 3; }
+      }
+
       @media (max-width: 860px) {
         .layout {
           grid-template-columns: 1fr;
@@ -870,6 +1015,11 @@
             <span style="--dot: var(--score-high);">Green: 80+</span>
             <span style="--dot: var(--score-moderate);">Orange: 50-79</span>
             <span style="--dot: var(--score-low);">Red: below 50</span>
+          </div>
+          <div class="view-toggle" id="sharedViewToggle" role="group" aria-label="Shared evaluations view">
+            <button type="button" data-view="cards" class="active" aria-pressed="true">🗂️ All apps</button>
+            <button type="button" data-view="category" aria-pressed="false">🧩 By category</button>
+            <button type="button" data-view="chart" aria-pressed="false">📊 Chart</button>
           </div>
           <div id="sharedEvaluationsContainer" style="margin-top: 15px;">
             <div id="sharedEvaluationsList" class="history-list" role="list"><div class="empty-state">Loading shared evaluations…</div></div>
@@ -1342,7 +1492,167 @@
         });
       }
 
-      // Render one card per app: average score (color coded) + each person's score
+      // ---- App categories (emoji) --------------------------------------------
+      const APP_CATEGORIES = [
+        { id: 'wellness',  emoji: '🧘🏻', label: 'Personal wellness', apps: ['if-me', 'hey linda', 'medito'] },
+        { id: 'sleep',     emoji: '😴',   label: 'Sleep',             apps: ['sleep diaries', 'sleep diary', 'plees tracker', 'gadgetbridge'] },
+        { id: 'diabetes',  emoji: '💉',   label: 'Diabetes',          apps: ['xdrip+', 'xdrip plus', 'glucosio', 'androidaps'] },
+        { id: 'heart',     emoji: '🫀',   label: 'Heart',             apps: ['bleheartratelogger', 'spix', 'heartratemonitor'] },
+        { id: 'menstrual', emoji: '👩🏻', label: 'Menstrual',         apps: ['menstrudel', 'mesinator', 'drip'] }
+      ];
+      const OTHER_CATEGORY = { id: 'other', emoji: '📱', label: 'Other', apps: [] };
+
+      // Ignore case, spaces, hyphens and "+" so "xDrip+", "xdrip" and "X-Drip" all match.
+      function looseKey(value) {
+        return String(value || '').toLowerCase().replace(/\+/g, 'plus').replace(/[^a-z0-9]/g, '');
+      }
+
+      const APP_CATEGORY_LOOKUP = (() => {
+        const map = new Map();
+        APP_CATEGORIES.forEach((cat) => cat.apps.forEach((name) => map.set(looseKey(name), cat)));
+        map.set('xdrip', APP_CATEGORIES[2]); // "xDrip+" typed without the plus
+        return map;
+      })();
+
+      function getAppCategory(appName) {
+        return APP_CATEGORY_LOOKUP.get(looseKey(appName)) || OTHER_CATEGORY;
+      }
+
+      function getAppEmoji(appName) {
+        return getAppCategory(appName).emoji;
+      }
+
+      let sharedView = 'cards'; // 'cards' | 'category' | 'chart'
+
+      function setSharedView(view) {
+        sharedView = view;
+        document.querySelectorAll('#sharedViewToggle button').forEach((btn) => {
+          const on = btn.dataset.view === view;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-pressed', String(on));
+        });
+        renderSharedEvaluations();
+      }
+
+      // Groups app groups by emoji category; category mean = mean of its apps' averages.
+      function groupByCategory(groups) {
+        const map = new Map();
+        groups.forEach((g) => {
+          const cat = getAppCategory(g.appName);
+          if (!map.has(cat.id)) map.set(cat.id, { cat, apps: [] });
+          map.get(cat.id).apps.push(g);
+        });
+        return [...APP_CATEGORIES, OTHER_CATEGORY]
+          .filter((c) => map.has(c.id))
+          .map((c) => {
+            const entry = map.get(c.id);
+            const mean = entry.apps.reduce((sum, a) => sum + a.average, 0) / entry.apps.length;
+            const evalCount = entry.apps.reduce((sum, a) => sum + a.evaluations.length, 0);
+            return { cat: c, apps: entry.apps, mean: Math.round(mean * 10) / 10, evalCount };
+          });
+      }
+
+      const clampPct = (n) => Math.max(0, Math.min(100, Number(n) || 0));
+
+      // One dot per evaluator on a 0-100 track (red / orange / green zones) + a bar for the mean.
+      function renderDotPlot(g) {
+        const dots = g.evaluations.map((e) => `<span class="dot" data-band="${getScoreBand(e.score)}" style="left:${clampPct(e.score)}%" title="${escapeHtml(e.userName || 'Unknown')}: ${formatScore(e.score)}"></span>`).join('');
+        const n = g.evaluations.length;
+        return `
+          <div class="dotplot" role="img" aria-label="${escapeHtml(g.appName)}: ${n} evaluation${n === 1 ? '' : 's'}, mean ${formatScore(g.average)}">
+            <div class="dotplot-track">${dots}<span class="dot-mean" style="left:${clampPct(g.average)}%" title="Mean: ${formatScore(g.average)}"></span></div>
+            <div class="dotplot-axis" aria-hidden="true">
+              <span style="left:0%">0</span><span style="left:50%">50</span><span style="left:80%">80</span><span style="left:100%">100</span>
+            </div>
+          </div>`;
+      }
+
+      function renderCategoryHead(c) {
+        const band = getScoreBand(c.mean);
+        return `
+          <div class="cat-head">
+            <span class="cat-emoji" aria-hidden="true">${c.cat.emoji}</span>
+            <div>
+              <div class="cat-title">${escapeHtml(c.cat.label)}</div>
+              <div class="cat-sub">${c.apps.length} app${c.apps.length === 1 ? '' : 's'} · ${c.evalCount} evaluation${c.evalCount === 1 ? '' : 's'}</div>
+            </div>
+            <div class="score-pill" data-band="${band}" title="Mean of the app averages in this category">
+              <strong>Mean ${formatScore(c.mean)}</strong>
+              <small>${SCORE_LABELS[band]}</small>
+            </div>
+          </div>`;
+      }
+
+      function renderSharedCard(g) {
+        const n = g.evaluations.length;
+        const band = getScoreBand(g.average);
+        const latestDate = g.latest.timestamp ? new Date(g.latest.timestamp).toLocaleDateString() : '';
+        const visible = g.evaluations.slice(0, 6);
+        const extra = n - visible.length;
+
+        const chips = visible.map((e) => `
+          <button type="button" class="shared-evaluator-badge" data-band="${getScoreBand(e.score)}" data-app-key="${escapeHtml(g.key)}" data-user-name="${escapeHtml(e.userName || '')}">
+            ${escapeHtml(e.userName || 'Unknown')}<span>${formatScore(e.score)}</span>
+          </button>`).join('') + (extra > 0 ? `<span class="shared-more">+${extra} more</span>` : '');
+
+        return `
+          <div class="shared-card" role="listitem" data-band="${band}" data-app-key="${escapeHtml(g.key)}" data-count="${n}" data-single-user="${n === 1 ? escapeHtml(g.latest.userName || '') : ''}">
+            <div class="shared-card-head">
+              <div>
+                <div class="shared-card-title"><span class="app-emoji" aria-hidden="true">${getAppEmoji(g.appName)}</span>${escapeHtml(g.appName)}</div>
+                <div class="shared-card-sub">${n} evaluation${n === 1 ? '' : 's'} · latest by <strong>${escapeHtml(g.latest.userName || 'Unknown')}</strong>${latestDate ? ' · ' + latestDate : ''}</div>
+              </div>
+              <div class="score-pill" data-band="${band}" title="${n > 1 ? 'Average of ' + n + ' evaluations' : 'Single evaluation'}">
+                <strong>${n > 1 ? 'Avg ' : ''}${formatScore(g.average)}</strong>
+                <small>${SCORE_LABELS[band]}</small>
+              </div>
+            </div>
+            <div class="shared-bar" aria-hidden="true"><span style="width:${clampPct(g.average)}%"></span></div>
+            ${n > 1 ? `<div class="shared-dotplot"><div class="shared-dotplot-label">How each user scored it (bar = mean ${formatScore(g.average)}):</div>${renderDotPlot(g)}</div>` : ''}
+            <div class="shared-evaluators">
+              <div class="shared-evaluators-label">${n > 1 ? 'Evaluated by (color = their score):' : 'Evaluated by:'}</div>
+              ${chips}
+            </div>
+            ${n > 1 ? `<button type="button" class="shared-view-all-link" data-app-key="${escapeHtml(g.key)}">View all ${n} evaluations</button>` : ''}
+          </div>`;
+      }
+
+      function renderChartRow(g) {
+        const n = g.evaluations.length;
+        const band = getScoreBand(g.average);
+        return `
+          <button type="button" class="chart-app-row" data-app-key="${escapeHtml(g.key)}" data-count="${n}" data-single-user="${n === 1 ? escapeHtml(g.latest.userName || '') : ''}">
+            <div class="chart-app-name"><span class="app-emoji" aria-hidden="true">${getAppEmoji(g.appName)}</span>${escapeHtml(g.appName)}<small>${n} evaluation${n === 1 ? '' : 's'}</small></div>
+            ${renderDotPlot(g)}
+            <div class="score-pill" data-band="${band}" title="Mean of ${n} evaluation${n === 1 ? '' : 's'}"><strong>${formatScore(g.average)}</strong></div>
+          </button>`;
+      }
+
+      function renderChartView(groups) {
+        const cats = groupByCategory(groups);
+        const summary = cats.map((c) => `
+          <div class="chart-row">
+            <div class="chart-name"><span class="app-emoji" aria-hidden="true">${c.cat.emoji}</span>${escapeHtml(c.cat.label)}</div>
+            <div class="chart-track"><div class="chart-bar" style="width:${clampPct(c.mean)}%; background:${getScoreLevelColor(c.mean)};"></div></div>
+            <div class="chart-score" style="color:${getScoreLevelColor(c.mean)};">${formatScore(c.mean)}</div>
+          </div>`).join('');
+
+        const sections = cats.map((c) => `
+          <div class="cat-section">
+            ${renderCategoryHead(c)}
+            ${c.apps.map(renderChartRow).join('')}
+          </div>`).join('');
+
+        return `
+          <div class="chart-key" aria-label="Chart key">
+            <span><i class="key-dot"></i>One user's score</span>
+            <span><i class="key-mean"></i>Mean score for the app</span>
+          </div>
+          <div class="cat-summary-chart" aria-label="Mean score by category">${summary}</div>
+          ${sections}`;
+      }
+
+      // Render shared evaluations in the selected view: all apps, grouped by emoji category, or charts.
       function renderSharedEvaluations() {
         const container = document.getElementById('sharedEvaluationsList');
         if (!container) return;
@@ -1353,38 +1663,17 @@
           return;
         }
 
-        container.innerHTML = groups.map((g) => {
-          const n = g.evaluations.length;
-          const band = getScoreBand(g.average);
-          const latestDate = g.latest.timestamp ? new Date(g.latest.timestamp).toLocaleDateString() : '';
-          const visible = g.evaluations.slice(0, 6);
-          const extra = n - visible.length;
-
-          const chips = visible.map((e) => `
-            <button type="button" class="shared-evaluator-badge" data-band="${getScoreBand(e.score)}" data-app-key="${escapeHtml(g.key)}" data-user-name="${escapeHtml(e.userName || '')}">
-              ${escapeHtml(e.userName || 'Unknown')}<span>${formatScore(e.score)}</span>
-            </button>`).join('') + (extra > 0 ? `<span class="shared-more">+${extra} more</span>` : '');
-
-          return `
-            <div class="shared-card" role="listitem" data-band="${band}" data-app-key="${escapeHtml(g.key)}" data-count="${n}" data-single-user="${n === 1 ? escapeHtml(g.latest.userName || '') : ''}">
-              <div class="shared-card-head">
-                <div>
-                  <div class="shared-card-title">${escapeHtml(g.appName)}</div>
-                  <div class="shared-card-sub">${n} evaluation${n === 1 ? '' : 's'} · latest by <strong>${escapeHtml(g.latest.userName || 'Unknown')}</strong>${latestDate ? ' · ' + latestDate : ''}</div>
-                </div>
-                <div class="score-pill" data-band="${band}" title="${n > 1 ? 'Average of ' + n + ' evaluations' : 'Single evaluation'}">
-                  <strong>${n > 1 ? 'Avg ' : ''}${formatScore(g.average)}</strong>
-                  <small>${SCORE_LABELS[band]}</small>
-                </div>
-              </div>
-              <div class="shared-bar" aria-hidden="true"><span style="width:${Math.max(0, Math.min(100, g.average))}%"></span></div>
-              <div class="shared-evaluators">
-                <div class="shared-evaluators-label">${n > 1 ? 'Evaluated by (color = their score):' : 'Evaluated by:'}</div>
-                ${chips}
-              </div>
-              ${n > 1 ? `<button type="button" class="shared-view-all-link" data-app-key="${escapeHtml(g.key)}">View all ${n} evaluations</button>` : ''}
-            </div>`;
-        }).join('');
+        if (sharedView === 'chart') {
+          container.innerHTML = renderChartView(groups);
+        } else if (sharedView === 'category') {
+          container.innerHTML = groupByCategory(groups).map((c) => `
+            <div class="cat-section">
+              ${renderCategoryHead(c)}
+              ${c.apps.map(renderSharedCard).join('')}
+            </div>`).join('');
+        } else {
+          container.innerHTML = groups.map(renderSharedCard).join('');
+        }
       }
 
       // One delegated handler instead of re-binding listeners on every render.
@@ -1399,7 +1688,7 @@
           showSharedAppComparison(link.dataset.appKey);
           return;
         }
-        const card = event.target.closest('.shared-card');
+        const card = event.target.closest('.shared-card, .chart-app-row');
         if (!card) return;
         if (Number(card.dataset.count) > 1) {
           showSharedAppComparison(card.dataset.appKey);
@@ -1440,13 +1729,17 @@
         modal.innerHTML = `
           <div class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(group.appName)} shared evaluations" style="max-width: 500px;">
             <div class="modal-header">
-              <h2>${escapeHtml(group.appName)} (${n})</h2>
+              <h2><span class="app-emoji" aria-hidden="true">${getAppEmoji(group.appName)}</span>${escapeHtml(group.appName)} (${n})</h2>
               <button class="close-button" type="button" aria-label="Close" data-close>×</button>
             </div>
             <div class="modal-body" style="max-height: 420px; overflow-y: auto; padding-top: 0;">
               <div class="compare-summary">
                 <span>Average across ${n} evaluation${n === 1 ? '' : 's'}</span>
                 <span class="score-pill" data-band="${band}"><strong>${formatScore(group.average)}</strong><small>${SCORE_LABELS[band]}</small></span>
+              </div>
+              <div style="padding: 14px 0 6px;">
+                <div class="shared-dotplot-label">Spread of scores (bar = mean)</div>
+                ${renderDotPlot(group)}
               </div>
               ${rows}
             </div>
@@ -2582,6 +2875,14 @@
 
         const sharedList = document.getElementById('sharedEvaluationsList');
         if (sharedList) sharedList.addEventListener('click', handleSharedListClick);
+
+        const viewToggle = document.getElementById('sharedViewToggle');
+        if (viewToggle) {
+          viewToggle.addEventListener('click', (ev) => {
+            const btn = ev.target.closest('button[data-view]');
+            if (btn) setSharedView(btn.dataset.view);
+          });
+        }
 
         initializeFirebaseForReading();
         updateHistoryList();
